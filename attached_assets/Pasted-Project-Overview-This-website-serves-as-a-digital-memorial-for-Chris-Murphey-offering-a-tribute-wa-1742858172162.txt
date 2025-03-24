@@ -1,0 +1,106 @@
+Project Overview:
+This website serves as a digital memorial for Chris Murphey, offering a tribute wall, an image gallery, a funeral program page, and a streaming link for the funeral service. Additionally, a family-administered console will allow Chris’s loved ones to manage content dynamically.
+
+Website Features & Functionality
+1. Homepage Layout
+Header Section:
+
+
+A main background image (e.g., a beach or something meaningful to Chris) that family members can update via the admin console.
+A main tribute image of Chris, customizable through the admin console.
+Image Gallery Section (Clickable to Expand into a Full Gallery Page)
+
+
+A featured main image of Chris.
+Additional thumbnails (4–6 images) that users can click to view the full image gallery on a separate page.
+All gallery images can be updated via the admin panel.
+Funeral Service Section:
+
+
+A button to view the full funeral program on a dedicated page.
+A button to stream the funeral live.
+The streaming link can be updated by the admin console.
+
+2. Tribute Wall (Social Feed-Style)
+Layout similar to a Facebook feed, where tributes appear in a scrolling list.
+
+
+Users can:
+
+
+Post text tributes, images, or videos.
+Like tributes using a "Light a Digital Candle" feature (instead of a thumbs-up, a fire emoji 🔥 is used).
+View other people's tributes in a scrolling feed.
+Posting Requirements:
+
+
+Guests must log in and create a profile before posting.
+Profile creation requires a name, but email is optional.
+Returning users can log back in with their username to post more tributes.
+Profiles ensure that tributes are attributed to the correct person.
+
+3. Dedicated Pages
+A. Image Gallery Page
+Clicking on the image gallery section on the homepage should lead to a separate gallery page.
+The gallery should have a scrollable layout, allowing users to browse through full-sized images.
+Admin console should allow adding, removing, or updating images in the gallery.
+B. Funeral Program Page
+A dedicated page where visitors can view the full funeral program online.
+Option to download the program as a PDF.
+The admin console can update or replace the funeral program PDF.
+
+4. Footer
+Contact information.
+A login link for administrators.
+A final message about Chris, which can be edited by the family in the admin console.
+
+Administrative Console (Back-End Features)
+Family members or authorized administrators will have access to a dashboard where they can manage:
+Tributes:
+
+
+View, approve, or delete inappropriate tribute posts.
+Images:
+
+
+Change the background image of the site.
+Update the main tribute image of Chris.
+Add/remove images in the image gallery.
+Funeral Service Details:
+
+
+Upload/update the funeral program (PDF or hosted page).
+Update the funeral streaming link.
+Footer Section:
+
+
+Edit/update the final message about Chris.
+
+User Authentication & Login System
+New users must create a profile with:
+A username (required).
+A name (required).
+An email (optional, but helpful for recovery).
+Returning users can log in with their username to post additional tributes.
+Simple authentication system (username-based, optional email recovery).
+
+Technical Instructions for Building the Website
+1. Tech Stack Recommendation
+Use whatever frontend, backend and database frameworks you thing will effectively implement the site.
+2. Steps to Develop
+Frontend Development
+Design the homepage with a hero section featuring the customizable background image.
+Build the image gallery with a dedicated page and lightbox effect.
+Implement the tribute wall feed (posts, likes/candles).
+Create the funeral program page and buttons for streaming and PDF download.
+Backend Development
+Set up APIs to handle tributes, user authentication, and admin functionalities.
+Implement file upload functionality for images and program files.
+Design an admin dashboard for content moderation and updates.
+Admin Panel Development
+Develop a secure login system for admins.
+Create an intuitive UI for managing tributes, images, and funeral details.
+User Authentication System
+Allow users to create a profile (username required, email optional).
+Ensure returning users can log in and post additional tributes.
+Store basic user profiles securely in the database.
