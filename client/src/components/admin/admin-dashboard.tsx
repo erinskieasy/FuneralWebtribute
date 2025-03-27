@@ -4,8 +4,9 @@ import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import ContentManager from "./content-manager";
 import TributeManager from "./tribute-manager";
+import GalleryManager from "./gallery-manager";
 import { useQuery } from "@tanstack/react-query";
-import { TributeItem } from "@/lib/types";
+import { TributeItem, GalleryImage } from "@/lib/types";
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -13,6 +14,10 @@ export default function AdminDashboard() {
   
   const { data: tributes } = useQuery<TributeItem[]>({
     queryKey: ["/api/tributes"],
+  });
+  
+  const { data: images } = useQuery<GalleryImage[]>({
+    queryKey: ["/api/gallery"],
   });
   
   // Count of tributes
@@ -34,7 +39,7 @@ export default function AdminDashboard() {
         </div>
         
         {/* Dashboard Overview */}
-        <div className="grid gap-4 grid-cols-1 md:grid-cols-3 mb-8">
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-4 mb-8">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg">Tributes</CardTitle>
@@ -57,6 +62,16 @@ export default function AdminDashboard() {
           
           <Card>
             <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Gallery</CardTitle>
+              <CardDescription>Images in collection</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold">{Array.isArray(images) ? images.length : 0}</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="pb-2">
               <CardTitle className="text-lg">Last Updated</CardTitle>
               <CardDescription>Latest site changes</CardDescription>
             </CardHeader>
@@ -71,6 +86,7 @@ export default function AdminDashboard() {
           <TabsList className="mb-4">
             <TabsTrigger value="content">Content Management</TabsTrigger>
             <TabsTrigger value="tributes">Tribute Management</TabsTrigger>
+            <TabsTrigger value="gallery">Gallery Management</TabsTrigger>
           </TabsList>
           
           <TabsContent value="content" className="mt-4">
@@ -79,6 +95,10 @@ export default function AdminDashboard() {
           
           <TabsContent value="tributes" className="mt-4">
             <TributeManager />
+          </TabsContent>
+          
+          <TabsContent value="gallery" className="mt-4">
+            <GalleryManager />
           </TabsContent>
         </Tabs>
       </div>
