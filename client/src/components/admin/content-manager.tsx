@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,26 +32,28 @@ export default function ContentManager() {
   });
   
   // State for settings form
-  const [backgroundImage, setBackgroundImage] = useState(settings?.backgroundImage || "");
-  const [tributeImage, setTributeImage] = useState(settings?.tributeImage || "");
-  const [footerMessage, setFooterMessage] = useState(settings?.footerMessage || "");
+  const [backgroundImage, setBackgroundImage] = useState("");
+  const [tributeImage, setTributeImage] = useState("");
+  const [footerMessage, setFooterMessage] = useState("");
   
   // State for funeral program form
-  const [programDate, setProgramDate] = useState(funeralProgram?.date || "");
-  const [programTime, setProgramTime] = useState(funeralProgram?.time || "");
-  const [programLocation, setProgramLocation] = useState(funeralProgram?.location || "");
-  const [programAddress, setProgramAddress] = useState(funeralProgram?.address || "");
-  const [programStreamLink, setProgramStreamLink] = useState(funeralProgram?.streamLink || "");
-  const [programPdfUrl, setProgramPdfUrl] = useState(funeralProgram?.programPdfUrl || "");
+  const [programDate, setProgramDate] = useState("");
+  const [programTime, setProgramTime] = useState("");
+  const [programLocation, setProgramLocation] = useState("");
+  const [programAddress, setProgramAddress] = useState("");
+  const [programStreamLink, setProgramStreamLink] = useState("");
+  const [programPdfUrl, setProgramPdfUrl] = useState("");
   
   // Update settings when data is loaded
-  useState(() => {
+  useEffect(() => {
     if (settings) {
       setBackgroundImage(settings.backgroundImage || "");
       setTributeImage(settings.tributeImage || "");
       setFooterMessage(settings.footerMessage || "");
     }
-    
+  }, [settings]);
+  
+  useEffect(() => {
     if (funeralProgram) {
       setProgramDate(funeralProgram.date || "");
       setProgramTime(funeralProgram.time || "");
@@ -60,7 +62,7 @@ export default function ContentManager() {
       setProgramStreamLink(funeralProgram.streamLink || "");
       setProgramPdfUrl(funeralProgram.programPdfUrl || "");
     }
-  }, [settings, funeralProgram]);
+  }, [funeralProgram]);
   
   // Settings mutation
   const updateSettingMutation = useMutation({

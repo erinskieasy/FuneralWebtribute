@@ -16,10 +16,12 @@ export default function AdminDashboard() {
   });
   
   // Count of tributes
-  const tributeCount = tributes?.length || 0;
+  const tributeCount = Array.isArray(tributes) ? tributes.length : 0;
   
   // Count of candles
-  const candleCount = tributes?.reduce((sum, tribute) => sum + tribute.candleCount, 0) || 0;
+  const candleCount = Array.isArray(tributes) 
+    ? tributes.reduce((sum, tribute) => sum + (tribute.candleCount || 0), 0) 
+    : 0;
   
   return (
     <div className="p-6">
