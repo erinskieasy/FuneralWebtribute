@@ -86,7 +86,7 @@ export default function Header({ minimal = false }: HeaderProps) {
                 <Link 
                   key={link.path}
                   href={link.path} 
-                  className={`text-white hover:text-secondary transition ${isActive(link.path) ? "border-b-2 border-secondary" : ""}`}
+                  className={`text-white hover:text-memorial-gray transition ${isActive(link.path) ? "border-b-2 border-memorial-blue" : ""}`}
                 >
                   {link.name}
                 </Link>
@@ -94,7 +94,7 @@ export default function Header({ minimal = false }: HeaderProps) {
               {isAdmin && (
                 <Link 
                   href="/admin" 
-                  className={`text-white hover:text-secondary transition ${isActive("/admin") ? "border-b-2 border-secondary" : ""}`}
+                  className={`text-white hover:text-memorial-gray transition ${isActive("/admin") ? "border-b-2 border-memorial-blue" : ""}`}
                 >
                   Admin
                 </Link>
@@ -129,7 +129,7 @@ export default function Header({ minimal = false }: HeaderProps) {
                 <Link 
                   key={link.path}
                   href={link.path} 
-                  className={`text-white hover:text-secondary transition py-2 ${isActive(link.path) ? "border-l-4 border-secondary pl-2" : ""}`}
+                  className={`text-white hover:text-memorial-gray transition py-2 ${isActive(link.path) ? "border-l-4 border-memorial-blue pl-2" : ""}`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {link.name}
@@ -138,7 +138,7 @@ export default function Header({ minimal = false }: HeaderProps) {
               {isAdmin && (
                 <Link 
                   href="/admin" 
-                  className={`text-white hover:text-secondary transition py-2 ${isActive("/admin") ? "border-l-4 border-secondary pl-2" : ""}`}
+                  className={`text-white hover:text-memorial-gray transition py-2 ${isActive("/admin") ? "border-l-4 border-memorial-blue pl-2" : ""}`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Admin
