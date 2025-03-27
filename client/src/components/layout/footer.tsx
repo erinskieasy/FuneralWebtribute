@@ -2,11 +2,13 @@ import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { SiteSettings } from "@/lib/types";
 import { DEFAULT_FOOTER_MESSAGE } from "@/lib/constants";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function Footer() {
   const { data: settings } = useQuery<SiteSettings>({
     queryKey: ["/api/settings"],
   });
+  const { isAdmin } = useAuth();
 
   const footerMessage = settings?.footerMessage || DEFAULT_FOOTER_MESSAGE;
 
@@ -62,11 +64,13 @@ export default function Footer() {
             <p className="italic">
               {footerMessage}
             </p>
-            <div className="mt-6">
-              <Link href="/auth" className="text-sm hover:text-secondary transition">
-                Admin Login
-              </Link>
-            </div>
+            {isAdmin && (
+              <div className="mt-6">
+                <Link href="/admin" className="text-sm hover:text-secondary transition">
+                  Admin Dashboard
+                </Link>
+              </div>
+            )}
           </div>
         </div>
         
