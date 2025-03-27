@@ -104,13 +104,13 @@ export default function TributeCard({ tribute, onUpdate }: TributeCardProps) {
       
       <div className="flex justify-between items-center">
         <Button
-          variant="ghost"
-          className={`inline-flex items-center ${tribute.hasLitCandle ? "text-accent" : "text-gray-600"} hover:text-accent transition`}
+          variant={tribute.hasLitCandle ? "secondary" : "outline"}
+          className={`inline-flex items-center ${tribute.hasLitCandle ? "bg-memorial-blue text-white" : "text-gray-700 bg-white"} hover:bg-memorial-blue hover:text-white transition`}
           onClick={handleCandleToggle}
           disabled={candleMutation.isPending}
         >
-          <Flame className={`mr-2 ${tribute.hasLitCandle ? "fill-accent" : ""}`} /> 
-          Light a Candle <span className="ml-2">({tribute.candleCount})</span>
+          <Flame className={`mr-2 ${tribute.hasLitCandle ? "fill-white" : ""}`} /> 
+          {tribute.hasLitCandle ? "Candle Lit" : "Light a Candle"} <span className="ml-2">({tribute.candleCount})</span>
         </Button>
         <span className="text-sm text-gray-500">{timeAgo}</span>
       </div>

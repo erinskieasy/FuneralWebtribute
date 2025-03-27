@@ -11,3 +11,9 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .bg-memorial-blue {
+    background-color: #1e3a8a; /* dark blue - consistent with our secondary button color */
+  }
+}
