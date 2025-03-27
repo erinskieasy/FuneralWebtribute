@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { GalleryImage } from "@/lib/types";
@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
-import { Loader2, Plus, Pencil, Trash, Image, Star } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash, Image, Star, Upload } from "lucide-react";
 
 export default function GalleryManager() {
   const { toast } = useToast();
@@ -18,6 +18,9 @@ export default function GalleryManager() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [currentImage, setCurrentImage] = useState<GalleryImage | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadMode, setUploadMode] = useState<'url' | 'file'>('url');
   
   // Form state
   const [imageUrl, setImageUrl] = useState("");
@@ -36,6 +39,8 @@ export default function GalleryManager() {
     setIsFeatured(false);
     setOrder(0);
     setCurrentImage(null);
+    setSelectedFile(null);
+    setUploadMode('url');
   };
   
   const populateFormForEdit = (image: GalleryImage) => {
@@ -71,6 +76,51 @@ export default function GalleryManager() {
     onError: (error: Error) => {
       toast({
         title: "Failed to add image",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // Upload image mutation
+  const uploadImageMutation = useMutation({
+    mutationFn: async ({ file, caption, isFeatured, order }: { 
+      file: File;
+      caption: string | null;
+      isFeatured: boolean;
+      order: number;
+    }) => {
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('caption', caption || '');
+      formData.append('isFeatured', String(isFeatured));
+      formData.append('order', String(order));
+      
+      const response = await fetch('/api/gallery/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to upload image');
+      }
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/gallery"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/gallery/featured"] });
+      setIsAddDialogOpen(false);
+      resetForm();
+      toast({
+        title: "Success",
+        description: "Image uploaded to gallery",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to upload image",
         description: error.message,
         variant: "destructive",
       });
@@ -128,21 +178,51 @@ export default function GalleryManager() {
   });
   
   const handleAddImage = () => {
-    if (!imageUrl) {
-      toast({
-        title: "Error",
-        description: "Image URL is required",
-        variant: "destructive",
+    if (uploadMode === 'url') {
+      if (!imageUrl) {
+        toast({
+          title: "Error",
+          description: "Image URL is required",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      addImageMutation.mutate({
+        imageUrl,
+        caption: caption || null,
+        isFeatured,
+        order,
+      } as any);
+    } else {
+      if (!selectedFile) {
+        toast({
+          title: "Error",
+          description: "Please select an image file to upload",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      uploadImageMutation.mutate({
+        file: selectedFile,
+        caption: caption || null,
+        isFeatured,
+        order,
       });
-      return;
     }
-    
-    addImageMutation.mutate({
-      imageUrl,
-      caption: caption || null,
-      isFeatured,
-      order,
-    } as any);
+  };
+  
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+  
+  const triggerFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
   };
   
   const handleEditImage = () => {
@@ -174,6 +254,7 @@ export default function GalleryManager() {
   };
   
   const isAddLoading = addImageMutation.isPending;
+  const isUploadLoading = uploadImageMutation.isPending;
   const isEditLoading = editImageMutation.isPending;
   const isDeleteLoading = deleteImageMutation.isPending;
   
@@ -275,27 +356,83 @@ export default function GalleryManager() {
             </DialogHeader>
             
             <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="image-url">Image URL (required)</Label>
-                <Input
-                  id="image-url"
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  placeholder="https://example.com/image.jpg"
-                />
-                {imageUrl && (
-                  <div className="mt-2 h-40 overflow-hidden rounded-md">
-                    <img
-                      src={imageUrl}
-                      alt="Image preview"
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = "https://via.placeholder.com/400x300?text=Invalid+Image+URL";
-                      }}
-                    />
-                  </div>
-                )}
+              <div className="flex space-x-2 mb-4">
+                <Button
+                  type="button"
+                  variant={uploadMode === 'url' ? 'default' : 'outline'}
+                  className="flex-1"
+                  onClick={() => setUploadMode('url')}
+                >
+                  URL
+                </Button>
+                <Button
+                  type="button"
+                  variant={uploadMode === 'file' ? 'default' : 'outline'}
+                  className="flex-1"
+                  onClick={() => setUploadMode('file')}
+                >
+                  Upload File
+                </Button>
               </div>
+              
+              {uploadMode === 'url' ? (
+                <div className="space-y-2">
+                  <Label htmlFor="image-url">Image URL (required)</Label>
+                  <Input
+                    id="image-url"
+                    value={imageUrl}
+                    onChange={(e) => setImageUrl(e.target.value)}
+                    placeholder="https://example.com/image.jpg"
+                  />
+                  {imageUrl && (
+                    <div className="mt-2 h-40 overflow-hidden rounded-md">
+                      <img
+                        src={imageUrl}
+                        alt="Image preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "https://via.placeholder.com/400x300?text=Invalid+Image+URL";
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label htmlFor="image-file">Upload Image (required)</Label>
+                  <input 
+                    type="file" 
+                    ref={fileInputRef}
+                    id="image-file" 
+                    accept="image/*" 
+                    className="hidden"
+                    onChange={handleFileSelect}
+                  />
+                  <div 
+                    className="border-2 border-dashed border-gray-300 rounded-md p-6 flex flex-col items-center justify-center cursor-pointer hover:border-primary"
+                    onClick={triggerFileInput}
+                  >
+                    {selectedFile ? (
+                      <div className="space-y-2 w-full">
+                        <div className="h-40 overflow-hidden rounded-md">
+                          <img
+                            src={URL.createObjectURL(selectedFile)}
+                            alt="Selected image preview"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <p className="text-sm text-center">{selectedFile.name}</p>
+                      </div>
+                    ) : (
+                      <>
+                        <Upload className="h-10 w-10 text-gray-400 mb-2" />
+                        <p className="text-sm text-gray-500">Click to select an image</p>
+                        <p className="text-xs text-gray-400">JPG, PNG, GIF up to 5MB</p>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
               
               <div className="space-y-2">
                 <Label htmlFor="caption">Caption (optional)</Label>
@@ -333,14 +470,28 @@ export default function GalleryManager() {
               <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleAddImage} disabled={isAddLoading}>
-                {isAddLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Adding...
-                  </>
+              <Button 
+                onClick={handleAddImage} 
+                disabled={uploadMode === 'url' ? isAddLoading : isUploadLoading}
+              >
+                {uploadMode === 'url' ? (
+                  isAddLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Adding...
+                    </>
+                  ) : (
+                    "Add Image"
+                  )
                 ) : (
-                  "Add Image"
+                  isUploadLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    "Upload Image"
+                  )
                 )}
               </Button>
             </DialogFooter>

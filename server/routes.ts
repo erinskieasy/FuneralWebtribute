@@ -44,6 +44,14 @@ const upload = multer({
   limits: {
     fileSize: 5 * 1024 * 1024, // 5MB limit
   },
+  fileFilter: (_, file, cb) => {
+    // Accept only image files
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
+    }
+  }
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -360,6 +368,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid gallery image data", errors: error.errors });
       }
       res.status(500).json({ message: "Failed to create gallery image" });
+    }
+  });
+  
+  // Handle image uploads
+  app.post("/api/gallery/upload", isAdmin, upload.single("image"), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No image file provided" });
+      }
+      
+      // Convert the image buffer to base64
+      const base64Image = req.file.buffer.toString("base64");
+      const mimeType = req.file.mimetype;
+      const dataUrl = `data:${mimeType};base64,${base64Image}`;
+      
+      // Extract other form data
+      const caption = req.body.caption || null;
+      const isFeatured = req.body.isFeatured === "true";
+      const order = parseInt(req.body.order || "0");
+      
+      // Create the gallery image entry
+      const imageData = {
+        imageUrl: dataUrl,
+        caption,
+        isFeatured,
+        order
+      };
+      
+      const image = await storage.createGalleryImage(imageData as any);
+      res.status(201).json(image);
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      res.status(500).json({ message: "Failed to upload and process image" });
     }
   });
 
