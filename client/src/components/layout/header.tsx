@@ -66,8 +66,12 @@ export default function Header({ minimal = false }: HeaderProps) {
               src={backgroundImage} 
               alt="Memorial background" 
               className="object-cover w-full h-full"
+              onError={(e) => {
+                console.error('Failed to load image:', backgroundImage);
+                e.currentTarget.style.display = 'none';
+              }}
             />
-            <div className="absolute inset-0 bg-primary bg-opacity-60"></div>
+            <div className="absolute inset-0 bg-primary bg-opacity-40"></div>
           </div>
         )}
 
