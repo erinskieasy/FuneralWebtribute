@@ -1,13 +1,18 @@
 import { 
-  users, User, InsertUser, 
-  tributes, Tribute, InsertTribute,
-  gallery, GalleryImage, InsertGalleryImage,
-  settings, Setting, InsertSetting,
-  funeralProgram, FuneralProgram, InsertFuneralProgram,
-  candles, Candle, InsertCandle
+  User, InsertUser, 
+  Tribute, InsertTribute,
+  GalleryImage, InsertGalleryImage,
+  Setting, InsertSetting,
+  FuneralProgram, InsertFuneralProgram,
+  Candle, InsertCandle
 } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
+import { DatabaseStorage } from "./database-storage";
+import dotenv from "dotenv";
+
+// Load environment variables
+dotenv.config();
 
 const MemoryStore = createMemoryStore(session);
 
@@ -52,7 +57,7 @@ export interface IStorage {
   hasUserLitCandle(userId: number, tributeId: number): Promise<boolean>;
   
   // Session store
-  sessionStore: session.SessionStore;
+  sessionStore: any; // Using 'any' to resolve SessionStore type issue
 }
 
 export class MemStorage implements IStorage {
@@ -68,7 +73,7 @@ export class MemStorage implements IStorage {
   private _currentSettingId: number;
   private _currentCandleId: number;
   
-  sessionStore: session.SessionStore;
+  sessionStore: any; // Using 'any' to resolve SessionStore type issue
   
   constructor() {
     this._users = new Map();
@@ -362,4 +367,7 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Use PostgreSQL database storage if DATABASE_URL is defined, otherwise use memory storage
+export const storage = process.env.DATABASE_URL
+  ? new DatabaseStorage()
+  : new MemStorage();
