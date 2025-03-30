@@ -14,7 +14,7 @@ import { Loader2, Save, Upload } from "lucide-react";
 export default function ContentManager() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("general");
-  
+
   // Fetch settings
   const { 
     data: settings,
@@ -22,7 +22,7 @@ export default function ContentManager() {
   } = useQuery<SiteSettings>({
     queryKey: ["/api/settings"],
   });
-  
+
   // Fetch funeral program
   const { 
     data: funeralProgram,
@@ -30,26 +30,28 @@ export default function ContentManager() {
   } = useQuery<FuneralProgram>({
     queryKey: ["/api/funeral-program"],
   });
-  
+
   // State for settings form
   const [backgroundImage, setBackgroundImage] = useState("");
-  const [tributeImage, setTributeImage] = useState("");
-  
-  // Debug state changes
+  // Use the data directly from the query instead of local state
+  const tributeImage = settings?.tributeImage || "";
+
+  // Debug the image loading without affecting state
   useEffect(() => {
-    console.log('Tribute Image State Changed:', {
-      tributeImage,
-      isEmpty: !tributeImage,
-      type: typeof tributeImage,
-      length: tributeImage?.length
-    });
-  }, [tributeImage]);
+    if (settings?.tributeImage) {
+      const img = new Image();
+      img.onload = () => console.log('Image loaded successfully');
+      img.onerror = (e) => console.error('Image load error:', e);
+      img.src = settings.tributeImage;
+    }
+  }, [settings?.tributeImage]);
+
   const [footerMessage, setFooterMessage] = useState("");
-  
+
   // Refs for file inputs
   const backgroundFileInputRef = useRef<HTMLInputElement>(null);
   const tributeFileInputRef = useRef<HTMLInputElement>(null);
-  
+
   // State for funeral program form
   const [programDate, setProgramDate] = useState("");
   const [programTime, setProgramTime] = useState("");
@@ -57,17 +59,16 @@ export default function ContentManager() {
   const [programAddress, setProgramAddress] = useState("");
   const [programStreamLink, setProgramStreamLink] = useState("");
   const [programPdfUrl, setProgramPdfUrl] = useState("");
-  
+
   // Update settings when data is loaded
   useEffect(() => {
     if (settings) {
       console.log('Settings loaded:', settings);
       setBackgroundImage(settings.backgroundImage || "");
-      setTributeImage(settings.tributeImage || "");
       setFooterMessage(settings.footerMessage || "");
     }
   }, [settings]);
-  
+
   useEffect(() => {
     if (funeralProgram) {
       setProgramDate(funeralProgram.date || "");
@@ -78,7 +79,7 @@ export default function ContentManager() {
       setProgramPdfUrl(funeralProgram.programPdfUrl || "");
     }
   }, [funeralProgram]);
-  
+
   // Settings mutation
   const updateSettingMutation = useMutation({
     mutationFn: async ({ key, value }: { key: string; value: string }) => {
@@ -100,7 +101,7 @@ export default function ContentManager() {
       });
     },
   });
-  
+
   // Funeral program mutation
   const updateProgramMutation = useMutation({
     mutationFn: async (programData: Partial<FuneralProgram>) => {
@@ -122,25 +123,25 @@ export default function ContentManager() {
       });
     },
   });
-  
+
   // Image upload mutation
   const uploadImageMutation = useMutation({
     mutationFn: async ({ key, file }: { key: string; file: File }) => {
       const formData = new FormData();
       formData.append("image", file);
-      
+
       // Use fetch directly since we're sending FormData
       const res = await fetch(`/api/settings/upload/${key}`, {
         method: "POST",
         body: formData,
         credentials: "include",
       });
-      
+
       if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.message || "Failed to upload image");
       }
-      
+
       return res.json();
     },
     onSuccess: (data) => {
@@ -161,24 +162,24 @@ export default function ContentManager() {
       });
     },
   });
-  
+
   const handleSaveSettings = () => {
     // Update background image
     if (backgroundImage !== settings?.backgroundImage) {
       updateSettingMutation.mutate({ key: "backgroundImage", value: backgroundImage });
     }
-    
+
     // Update tribute image
     if (tributeImage !== settings?.tributeImage) {
       updateSettingMutation.mutate({ key: "tributeImage", value: tributeImage });
     }
-    
+
     // Update footer message
     if (footerMessage !== settings?.footerMessage) {
       updateSettingMutation.mutate({ key: "footerMessage", value: footerMessage });
     }
   };
-  
+
   // File upload handlers
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
     if (e.target.files && e.target.files[0]) {
@@ -186,19 +187,19 @@ export default function ContentManager() {
       uploadImageMutation.mutate({ key, file });
     }
   };
-  
+
   const handleUploadBackgroundImage = () => {
     if (backgroundFileInputRef.current) {
       backgroundFileInputRef.current.click();
     }
   };
-  
+
   const handleUploadTributeImage = () => {
     if (tributeFileInputRef.current) {
       tributeFileInputRef.current.click();
     }
   };
-  
+
   const handleSaveFuneralProgram = () => {
     const programData = {
       date: programDate,
@@ -208,13 +209,13 @@ export default function ContentManager() {
       streamLink: programStreamLink,
       programPdfUrl: programPdfUrl,
     };
-    
+
     updateProgramMutation.mutate(programData);
   };
-  
+
   const isUpdatingSettings = updateSettingMutation.isPending;
   const isUpdatingProgram = updateProgramMutation.isPending;
-  
+
   if (isLoadingSettings || isLoadingProgram) {
     return (
       <div className="flex justify-center py-12">
@@ -230,7 +231,7 @@ export default function ContentManager() {
           <TabsTrigger value="general">General Settings</TabsTrigger>
           <TabsTrigger value="funeral">Funeral Program</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="general" className="mt-4">
           <Card>
             <CardHeader>
@@ -283,7 +284,7 @@ export default function ContentManager() {
                   Enter an image URL or upload an image file (up to 50MB)
                 </p>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="tributeImage">Main Tribute Image</Label>
                 <div className="flex space-x-2">
@@ -331,7 +332,7 @@ export default function ContentManager() {
                   Enter an image URL or upload an image file (up to 50MB)
                 </p>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="footerMessage">Footer Message</Label>
                 <Textarea
@@ -342,7 +343,7 @@ export default function ContentManager() {
                   rows={3}
                 />
               </div>
-              
+
               <Button 
                 onClick={handleSaveSettings}
                 disabled={isUpdatingSettings}
@@ -363,7 +364,7 @@ export default function ContentManager() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="funeral" className="mt-4">
           <Card>
             <CardHeader>
@@ -383,7 +384,7 @@ export default function ContentManager() {
                     placeholder="Saturday, October 21, 2023"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="programTime">Time</Label>
                   <Input
@@ -394,7 +395,7 @@ export default function ContentManager() {
                   />
                 </div>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="programLocation">Location</Label>
                 <Input
@@ -404,7 +405,7 @@ export default function ContentManager() {
                   placeholder="Seaside Memorial Chapel"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="programAddress">Address</Label>
                 <Input
@@ -414,7 +415,7 @@ export default function ContentManager() {
                   placeholder="1234 Coastal Highway, Oceanview, CA 92123"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="programStreamLink">Livestream Link (optional)</Label>
                 <Input
@@ -424,7 +425,7 @@ export default function ContentManager() {
                   placeholder="https://example.com/stream"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="programPdfUrl">Program PDF URL (optional)</Label>
                 <Input
@@ -434,7 +435,7 @@ export default function ContentManager() {
                   placeholder="https://example.com/program.pdf"
                 />
               </div>
-              
+
               <Button 
                 onClick={handleSaveFuneralProgram}
                 disabled={isUpdatingProgram}
