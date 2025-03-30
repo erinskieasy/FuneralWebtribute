@@ -42,7 +42,7 @@ declare global {
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
+    fileSize: 50 * 1024 * 1024, // 50MB limit
   },
   fileFilter: (_, file, cb) => {
     // Accept only image files
@@ -486,6 +486,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid setting data", errors: error.errors });
       }
       res.status(500).json({ message: "Failed to update setting" });
+    }
+  });
+  
+  // Handle setting image uploads (for tribute image and background image)
+  app.post("/api/settings/upload/:key", isAdmin, upload.single("image"), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No image file provided" });
+      }
+      
+      const key = req.params.key;
+      
+      // Only allow certain keys to be updated via file upload
+      if (key !== "tributeImage" && key !== "backgroundImage") {
+        return res.status(400).json({ message: "Invalid setting key for image upload" });
+      }
+      
+      // Convert the image buffer to base64
+      const base64Image = req.file.buffer.toString("base64");
+      const mimeType = req.file.mimetype;
+      const dataUrl = `data:${mimeType};base64,${base64Image}`;
+      
+      // Update the setting
+      const settingData = insertSettingsSchema.parse({ key, value: dataUrl });
+      const setting = await storage.upsertSetting(settingData);
+      
+      res.json(setting);
+    } catch (error) {
+      console.error("Error uploading setting image:", error);
+      res.status(500).json({ message: "Failed to upload and process image" });
     }
   });
 

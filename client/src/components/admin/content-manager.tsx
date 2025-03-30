@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { SiteSettings, FuneralProgram } from "@/lib/types";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Loader2, Save } from "lucide-react";
+import { Loader2, Save, Upload } from "lucide-react";
 
 export default function ContentManager() {
   const { toast } = useToast();
@@ -35,6 +35,10 @@ export default function ContentManager() {
   const [backgroundImage, setBackgroundImage] = useState("");
   const [tributeImage, setTributeImage] = useState("");
   const [footerMessage, setFooterMessage] = useState("");
+  
+  // Refs for file inputs
+  const backgroundFileInputRef = useRef<HTMLInputElement>(null);
+  const tributeFileInputRef = useRef<HTMLInputElement>(null);
   
   // State for funeral program form
   const [programDate, setProgramDate] = useState("");
@@ -108,6 +112,42 @@ export default function ContentManager() {
     },
   });
   
+  // Image upload mutation
+  const uploadImageMutation = useMutation({
+    mutationFn: async ({ key, file }: { key: string; file: File }) => {
+      const formData = new FormData();
+      formData.append("image", file);
+      
+      // Use fetch directly since we're sending FormData
+      const res = await fetch(`/api/settings/upload/${key}`, {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+      
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to upload image");
+      }
+      
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/settings"] });
+      toast({
+        title: "Image uploaded",
+        description: "Your image has been uploaded successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to upload image",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+  
   const handleSaveSettings = () => {
     // Update background image
     if (backgroundImage !== settings?.backgroundImage) {
@@ -122,6 +162,26 @@ export default function ContentManager() {
     // Update footer message
     if (footerMessage !== settings?.footerMessage) {
       updateSettingMutation.mutate({ key: "footerMessage", value: footerMessage });
+    }
+  };
+  
+  // File upload handlers
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      uploadImageMutation.mutate({ key, file });
+    }
+  };
+  
+  const handleUploadBackgroundImage = () => {
+    if (backgroundFileInputRef.current) {
+      backgroundFileInputRef.current.click();
+    }
+  };
+  
+  const handleUploadTributeImage = () => {
+    if (tributeFileInputRef.current) {
+      tributeFileInputRef.current.click();
     }
   };
   
@@ -167,13 +227,35 @@ export default function ContentManager() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="backgroundImage">Header Background Image URL</Label>
-                <Input
-                  id="backgroundImage"
-                  value={backgroundImage}
-                  onChange={(e) => setBackgroundImage(e.target.value)}
-                  placeholder="https://example.com/background.jpg"
-                />
+                <Label htmlFor="backgroundImage">Header Background Image</Label>
+                <div className="flex space-x-2">
+                  <Input
+                    id="backgroundImage"
+                    value={backgroundImage}
+                    onChange={(e) => setBackgroundImage(e.target.value)}
+                    placeholder="https://example.com/background.jpg"
+                    className="flex-1"
+                  />
+                  <input
+                    type="file"
+                    ref={backgroundFileInputRef}
+                    className="hidden"
+                    accept="image/*"
+                    onChange={(e) => handleFileChange(e, "backgroundImage")}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleUploadBackgroundImage}
+                    disabled={uploadImageMutation.isPending}
+                  >
+                    {uploadImageMutation.isPending && uploadImageMutation.variables?.key === "backgroundImage" ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
                 {backgroundImage && (
                   <div className="mt-2 h-24 overflow-hidden rounded-md">
                     <img
@@ -183,16 +265,41 @@ export default function ContentManager() {
                     />
                   </div>
                 )}
+                <p className="text-xs text-muted-foreground">
+                  Enter an image URL or upload an image file (up to 50MB)
+                </p>
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="tributeImage">Main Tribute Image URL</Label>
-                <Input
-                  id="tributeImage"
-                  value={tributeImage}
-                  onChange={(e) => setTributeImage(e.target.value)}
-                  placeholder="https://example.com/chris.jpg"
-                />
+                <Label htmlFor="tributeImage">Main Tribute Image</Label>
+                <div className="flex space-x-2">
+                  <Input
+                    id="tributeImage"
+                    value={tributeImage}
+                    onChange={(e) => setTributeImage(e.target.value)}
+                    placeholder="https://example.com/chris.jpg"
+                    className="flex-1"
+                  />
+                  <input
+                    type="file"
+                    ref={tributeFileInputRef}
+                    className="hidden"
+                    accept="image/*"
+                    onChange={(e) => handleFileChange(e, "tributeImage")}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleUploadTributeImage}
+                    disabled={uploadImageMutation.isPending}
+                  >
+                    {uploadImageMutation.isPending && uploadImageMutation.variables?.key === "tributeImage" ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
                 {tributeImage && (
                   <div className="mt-2 h-24 w-24 overflow-hidden rounded-full mx-auto">
                     <img
@@ -202,6 +309,9 @@ export default function ContentManager() {
                     />
                   </div>
                 )}
+                <p className="text-xs text-muted-foreground">
+                  Enter an image URL or upload an image file (up to 50MB)
+                </p>
               </div>
               
               <div className="space-y-2">
