@@ -320,6 +320,10 @@ export default function ContentManager() {
                       src={tributeImage}
                       alt="Tribute preview"
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        console.error('Failed to load tribute image:', tributeImage?.slice(0, 100));
+                        e.currentTarget.style.display = 'none';
+                      }}
                     />
                   </div>
                 )}
