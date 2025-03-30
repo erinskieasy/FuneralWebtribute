@@ -315,7 +315,7 @@ export default function ContentManager() {
                   </Button>
                 </div>
                 {tributeImage && (
-                  <div className="mt-2 h-24 w-24 overflow-hidden rounded-full mx-auto">
+                  <div className="mt-2 h-24 w-24 overflow-hidden rounded-full mx-auto border-2 border-red-500">
                     <img
                       src={tributeImage}
                       alt="Tribute preview"
