@@ -237,14 +237,21 @@ export default function GalleryManager() {
       return;
     }
     
+    // Only send the image URL if it's actually changed to avoid large payloads
+    const updateData: Record<string, any> = {
+      caption: caption || null, // Explicitly use null for empty captions as per the DB schema
+      isFeatured,
+      order,
+    };
+    
+    // Only include imageUrl if it's different from current image
+    if (imageUrl !== currentImage.imageUrl) {
+      updateData.imageUrl = imageUrl;
+    }
+    
     editImageMutation.mutate({
       id: currentImage.id,
-      data: {
-        imageUrl,
-        caption: caption || null,
-        isFeatured,
-        order,
-      } as any,
+      data: updateData,
     });
   };
   
