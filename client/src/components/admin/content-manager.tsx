@@ -33,8 +33,7 @@ export default function ContentManager() {
 
   // State for settings form
   const [backgroundImage, setBackgroundImage] = useState("");
-  // Use the data directly from the query instead of local state
-  const tributeImage = settings?.tributeImage || "";
+  const [tributeImage, setTributeImage] = useState("");
 
   // Debug the image loading without affecting state
   useEffect(() => {
@@ -65,6 +64,7 @@ export default function ContentManager() {
     if (settings) {
       console.log('Settings loaded:', settings);
       setBackgroundImage(settings.backgroundImage || "");
+      setTributeImage(settings.tributeImage || "");
       setFooterMessage(settings.footerMessage || "");
     }
   }, [settings]);
@@ -316,11 +316,11 @@ export default function ContentManager() {
                   </Button>
                 </div>
                 {tributeImage && (
-                  <div className="mt-2 relative w-full max-w-[16rem] mx-auto aspect-square rounded-full border-2 border-primary overflow-hidden">
+                  <div className="mt-2 w-full max-w-[16rem] mx-auto h-40 rounded-md border border-border overflow-hidden">
                     <img
                       src={tributeImage}
                       alt="Tribute preview"
-                      className="absolute inset-0 w-full h-full object-cover"
+                      className="w-full h-full object-cover"
                       onError={(e) => {
                         console.error('Failed to load tribute image:', tributeImage?.slice(0, 100));
                         e.currentTarget.style.display = 'none';
