@@ -316,11 +316,11 @@ export default function ContentManager() {
                   </Button>
                 </div>
                 {tributeImage && (
-                  <div className="mt-2 w-48 h-48 sm:w-64 sm:h-64 overflow-hidden rounded-full mx-auto border-2 border-red-500 flex items-center justify-center">
+                  <div className="mt-2 relative w-full max-w-[16rem] mx-auto aspect-square rounded-full border-2 border-primary overflow-hidden">
                     <img
                       src={tributeImage}
                       alt="Tribute preview"
-                      className="min-w-full min-h-full object-cover object-top"
+                      className="absolute inset-0 w-full h-full object-cover"
                       onError={(e) => {
                         console.error('Failed to load tribute image:', tributeImage?.slice(0, 100));
                         e.currentTarget.style.display = 'none';
