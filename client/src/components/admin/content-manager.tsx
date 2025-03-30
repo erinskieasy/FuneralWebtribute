@@ -34,6 +34,16 @@ export default function ContentManager() {
   // State for settings form
   const [backgroundImage, setBackgroundImage] = useState("");
   const [tributeImage, setTributeImage] = useState("");
+  
+  // Debug state changes
+  useEffect(() => {
+    console.log('Tribute Image State Changed:', {
+      tributeImage,
+      isEmpty: !tributeImage,
+      type: typeof tributeImage,
+      length: tributeImage?.length
+    });
+  }, [tributeImage]);
   const [footerMessage, setFooterMessage] = useState("");
   
   // Refs for file inputs
@@ -132,8 +142,11 @@ export default function ContentManager() {
       
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Upload Success Response:', data);
       queryClient.invalidateQueries({ queryKey: ["/api/settings"] });
+      // Verify the state after upload
+      console.log('Current Tribute Image State:', tributeImage);
       toast({
         title: "Image uploaded",
         description: "Your image has been uploaded successfully.",
