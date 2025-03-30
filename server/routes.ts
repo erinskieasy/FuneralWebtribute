@@ -1,6 +1,6 @@
-import type { Express, Request, Response } from "express";
+import express, { type Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage as dbStorage } from "./storage";
 import { insertUserSchema, insertTributeSchema, insertGallerySchema, insertSettingsSchema } from "@shared/schema";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
@@ -39,8 +39,43 @@ declare global {
 }
 
 // Configure multer for file uploads (in-memory storage)
+import fs from 'fs';
+import path from 'path';
+import { v4 as uuidv4 } from 'uuid';
+
+// Ensure upload directories exist
+const uploadDirs = ['./uploads', './uploads/background', './uploads/tribute', './uploads/gallery'];
+for (const dir of uploadDirs) {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+}
+
+// Configure multer for disk storage
+const fileStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    // Determine the destination folder based on the route
+    let folder = './uploads';
+    
+    if (req.originalUrl.includes('/settings/upload/backgroundImage')) {
+      folder = './uploads/background';
+    } else if (req.originalUrl.includes('/settings/upload/tributeImage')) {
+      folder = './uploads/tribute';
+    } else if (req.originalUrl.includes('/gallery')) {
+      folder = './uploads/gallery';
+    }
+    
+    cb(null, folder);
+  },
+  filename: function (req, file, cb) {
+    // Generate a unique filename to prevent overwriting
+    const uniqueFilename = `${uuidv4()}${path.extname(file.originalname)}`;
+    cb(null, uniqueFilename);
+  }
+});
+
 const upload = multer({
-  storage: multer.memoryStorage(),
+  storage: fileStorage,
   limits: {
     fileSize: 50 * 1024 * 1024, // 50MB limit
   },
@@ -55,13 +90,15 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Serve uploaded files statically
+  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
   // Set up session middleware
   app.use(
     session({
       secret: process.env.SESSION_SECRET || "chris-murphey-memorial",
       resave: false,
       saveUninitialized: false,
-      store: storage.sessionStore,
+      store: dbStorage.sessionStore,
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
         secure: process.env.NODE_ENV === "production",
@@ -77,7 +114,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   passport.use(
     new LocalStrategy(async (username, password, done) => {
       try {
-        const user = await storage.getUserByUsername(username);
+        const user = await dbStorage.getUserByUsername(username);
         if (!user) {
           return done(null, false, { message: "Invalid username" });
         }
@@ -101,7 +138,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   passport.deserializeUser(async (id: number, done) => {
     try {
-      const user = await storage.getUser(id);
+      const user = await dbStorage.getUser(id);
       done(null, user);
     } catch (error) {
       done(error);
@@ -131,14 +168,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userData = insertUserSchema.parse(req.body);
       
       // Check if username already exists
-      const existingUser = await storage.getUserByUsername(userData.username);
+      const existingUser = await dbStorage.getUserByUsername(userData.username);
       if (existingUser) {
         return res.status(400).json({ message: "Username already exists" });
       }
 
       // Hash password and create user
       const hashedPassword = await hashPassword(userData.password);
-      const user = await storage.createUser({
+      const user = await dbStorage.createUser({
         ...userData,
         password: hashedPassword,
         isAdmin: false, // Ensure no self-registration of admins
@@ -203,12 +240,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
       const offset = req.query.offset ? parseInt(req.query.offset as string) : 0;
       
-      const tributes = await storage.getTributes(limit, offset);
+      const tributes = await dbStorage.getTributes(limit, offset);
       
       // Enhance tributes with user information
       const enhancedTributes = await Promise.all(
         tributes.map(async (tribute) => {
-          const user = await storage.getUser(tribute.userId);
+          const user = await dbStorage.getUser(tribute.userId);
           return {
             ...tribute,
             user: user ? { 
@@ -218,7 +255,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             } : undefined,
             // If user is authenticated, include whether they've lit a candle
             hasLitCandle: req.isAuthenticated() 
-              ? await storage.hasUserLitCandle(req.user.id, tribute.id)
+              ? await dbStorage.hasUserLitCandle(req.user.id, tribute.id)
               : false
           };
         })
@@ -233,13 +270,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/tributes/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const tribute = await storage.getTributeById(id);
+      const tribute = await dbStorage.getTributeById(id);
       
       if (!tribute) {
         return res.status(404).json({ message: "Tribute not found" });
       }
       
-      const user = await storage.getUser(tribute.userId);
+      const user = await dbStorage.getUser(tribute.userId);
       
       res.json({
         ...tribute,
@@ -249,7 +286,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           name: user.name
         } : undefined,
         hasLitCandle: req.isAuthenticated() 
-          ? await storage.hasUserLitCandle(req.user.id, tribute.id)
+          ? await dbStorage.hasUserLitCandle(req.user.id, tribute.id)
           : false
       });
     } catch (error) {
@@ -264,7 +301,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId: req.user.id
       });
       
-      const tribute = await storage.createTribute(tributeData);
+      const tribute = await dbStorage.createTribute(tributeData);
       
       res.status(201).json({
         ...tribute,
@@ -286,7 +323,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/tributes/:id", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const tribute = await storage.getTributeById(id);
+      const tribute = await dbStorage.getTributeById(id);
       
       if (!tribute) {
         return res.status(404).json({ message: "Tribute not found" });
@@ -297,7 +334,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Forbidden" });
       }
       
-      const deleted = await storage.deleteTribute(id);
+      const deleted = await dbStorage.deleteTribute(id);
       
       if (deleted) {
         res.status(200).json({ message: "Tribute deleted successfully" });
@@ -315,20 +352,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const tributeId = parseInt(req.params.id);
       const userId = req.user.id;
       
-      const tribute = await storage.getTributeById(tributeId);
+      const tribute = await dbStorage.getTributeById(tributeId);
       if (!tribute) {
         return res.status(404).json({ message: "Tribute not found" });
       }
       
-      const hasLit = await storage.hasUserLitCandle(userId, tributeId);
+      const hasLit = await dbStorage.hasUserLitCandle(userId, tributeId);
       
       if (hasLit) {
         // If already lit, remove the candle
-        await storage.removeCandle(userId, tributeId);
+        await dbStorage.removeCandle(userId, tributeId);
         res.json({ lit: false, candleCount: tribute.candleCount - 1 });
       } else {
         // If not lit, add a candle
-        await storage.addCandle({ userId, tributeId });
+        await dbStorage.addCandle({ userId, tributeId });
         res.json({ lit: true, candleCount: tribute.candleCount + 1 });
       }
     } catch (error) {
@@ -342,7 +379,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
       const offset = req.query.offset ? parseInt(req.query.offset as string) : 0;
       
-      const images = await storage.getGalleryImages(limit, offset);
+      const images = await dbStorage.getGalleryImages(limit, offset);
       res.json(images);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch gallery images" });
@@ -351,7 +388,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/gallery/featured", async (req, res) => {
     try {
-      const featuredImages = await storage.getFeaturedGalleryImages();
+      const featuredImages = await dbStorage.getFeaturedGalleryImages();
       res.json(featuredImages);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch featured gallery images" });
@@ -361,7 +398,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/gallery", isAdmin, async (req, res) => {
     try {
       const imageData = insertGallerySchema.parse(req.body);
-      const image = await storage.createGalleryImage(imageData);
+      const image = await dbStorage.createGalleryImage(imageData);
       res.status(201).json(image);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -378,25 +415,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "No image file provided" });
       }
       
-      // Convert the image buffer to base64
-      const base64Image = req.file.buffer.toString("base64");
-      const mimeType = req.file.mimetype;
-      const dataUrl = `data:${mimeType};base64,${base64Image}`;
+      // The file has been saved to disk by multer
+      // Create a URL path to the file
+      const imagePath = `/uploads/gallery/${req.file.filename}`;
       
       // Extract other form data
       const caption = req.body.caption || null;
       const isFeatured = req.body.isFeatured === "true";
       const order = parseInt(req.body.order || "0");
       
-      // Create the gallery image entry
+      // Create the gallery image entry with the file path
       const imageData = {
-        imageUrl: dataUrl,
+        imageUrl: imagePath,
         caption,
         isFeatured,
         order
       };
       
-      const image = await storage.createGalleryImage(imageData as any);
+      const image = await dbStorage.createGalleryImage(imageData as any);
       res.status(201).json(image);
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -409,7 +445,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
       const imageData = req.body;
       
-      const image = await storage.updateGalleryImage(id, imageData);
+      const image = await dbStorage.updateGalleryImage(id, imageData);
       
       if (!image) {
         return res.status(404).json({ message: "Gallery image not found" });
@@ -424,7 +460,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/gallery/:id", isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const deleted = await storage.deleteGalleryImage(id);
+      const deleted = await dbStorage.deleteGalleryImage(id);
       
       if (deleted) {
         res.status(200).json({ message: "Gallery image deleted successfully" });
@@ -439,7 +475,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Settings Routes
   app.get("/api/settings", async (req, res) => {
     try {
-      const settings = await storage.getAllSettings();
+      const settings = await dbStorage.getAllSettings();
       
       // Convert to key-value object
       const settingsObj = settings.reduce((acc, setting) => {
@@ -456,7 +492,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/settings/:key", async (req, res) => {
     try {
       const key = req.params.key;
-      const setting = await storage.getSetting(key);
+      const setting = await dbStorage.getSetting(key);
       
       if (!setting) {
         return res.status(404).json({ message: "Setting not found" });
@@ -478,7 +514,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const settingData = insertSettingsSchema.parse({ key, value });
-      const setting = await storage.upsertSetting(settingData);
+      const setting = await dbStorage.upsertSetting(settingData);
       
       res.json(setting);
     } catch (error) {
@@ -503,14 +539,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid setting key for image upload" });
       }
       
-      // Convert the image buffer to base64
-      const base64Image = req.file.buffer.toString("base64");
-      const mimeType = req.file.mimetype;
-      const dataUrl = `data:${mimeType};base64,${base64Image}`;
+      // Determine the appropriate folder based on the key
+      const folder = key === "tributeImage" ? "tribute" : "background";
       
-      // Update the setting
-      const settingData = insertSettingsSchema.parse({ key, value: dataUrl });
-      const setting = await storage.upsertSetting(settingData);
+      // Create a URL path to the file
+      const imagePath = `/uploads/${folder}/${req.file.filename}`;
+      
+      // Update the setting with the file path
+      const settingData = insertSettingsSchema.parse({ key, value: imagePath });
+      const setting = await dbStorage.upsertSetting(settingData);
       
       res.json(setting);
     } catch (error) {
@@ -522,7 +559,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Funeral Program Routes
   app.get("/api/funeral-program", async (req, res) => {
     try {
-      const program = await storage.getFuneralProgram();
+      const program = await dbStorage.getFuneralProgram();
       
       if (!program) {
         return res.status(404).json({ message: "Funeral program not found" });
@@ -537,7 +574,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/funeral-program", isAdmin, async (req, res) => {
     try {
       const programData = req.body;
-      const program = await storage.updateFuneralProgram(programData);
+      const program = await dbStorage.updateFuneralProgram(programData);
       res.json(program);
     } catch (error) {
       res.status(500).json({ message: "Failed to update funeral program" });
