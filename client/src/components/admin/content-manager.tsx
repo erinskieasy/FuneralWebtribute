@@ -61,6 +61,7 @@ export default function ContentManager() {
   // Update settings when data is loaded
   useEffect(() => {
     if (settings) {
+      console.log('Settings loaded:', settings);
       setBackgroundImage(settings.backgroundImage || "");
       setTributeImage(settings.tributeImage || "");
       setFooterMessage(settings.footerMessage || "");
