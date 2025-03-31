@@ -90,14 +90,16 @@ export default function Header({ minimal = false }: HeaderProps) {
             <img 
               src={backgroundImage.startsWith('/uploads') ? `${window.location.origin}${backgroundImage}` : backgroundImage} 
               alt="Memorial background" 
-              className="object-cover w-full h-full"
+              className="object-cover w-full h-full border-2 border-red-500" 
+              onLoad={() => {
+                console.log('Background image loaded successfully');
+              }}
               onError={(e) => {
                 console.error('Failed to load image:', backgroundImage);
                 e.currentTarget.style.display = 'none';
               }}
             />
-            {/* Overlay to darken the background image */}
-            <div className="absolute inset-0 bg-primary bg-opacity-40"></div>
+            {/* Overlay temporarily removed for testing */}
           </div>
         )}
 
