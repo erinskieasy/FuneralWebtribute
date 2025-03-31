@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
@@ -20,10 +19,10 @@ export default function Header({ minimal = false }: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false);        // Tracks scroll position for header styling
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);  // Controls mobile menu visibility
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);    // Controls auth modal visibility
-  
+
   // Hook for authentication state and user data
   const { isLoggedIn, user, isAdmin, logoutMutation } = useAuth();
-  
+
   // Current route location using wouter
   const [location] = useLocation();
 
@@ -34,23 +33,20 @@ export default function Header({ minimal = false }: HeaderProps) {
     retry: false,
   });
 
-  // Use settings data or fall back to defaults
-  const backgroundImage = settings?.backgroundImage || '';
-  const tributeImage = settings?.tributeImage || '';
-  const siteTitle = settings?.siteTitle || 'Memorial Site';
+  // Use window.location.origin to construct full URLs for images
+  const backgroundImage = settings?.backgroundImage 
+    ? `${window.location.origin}${settings.backgroundImage}`
+    : '';
+  const tributeImage = settings?.tributeImage
+    ? `${window.location.origin}${settings.tributeImage}`
+    : '';
+  const siteTitle = settings?.siteTitle || '';
   const lifeDates = settings?.lifeDates || '';
   const tributeHeadline = settings?.tributeHeadline || '';
-  
-  // Log image paths for debugging
-  useEffect(() => {
-    if (settings) {
-      console.log('Background Image Path:', backgroundImage);
-      if (backgroundImage) {
-        console.log('Background Image URL:', backgroundImage.startsWith('/uploads') ? `${window.location.origin}${backgroundImage}` : backgroundImage);
-      }
-      console.log('Tribute Image Path:', tributeImage);
-    }
-  }, [settings, backgroundImage, tributeImage]);
+
+  console.log('Background Image Path:', settings?.backgroundImage);
+  console.log('Background Image URL:', backgroundImage);
+  console.log('Tribute Image Path:', settings?.tributeImage);
 
   // Add scroll event listener to track page scroll position
   useEffect(() => {
@@ -93,7 +89,7 @@ export default function Header({ minimal = false }: HeaderProps) {
         {!minimal && (
           <div className="absolute inset-0 z-0">
             <img 
-              src={backgroundImage && backgroundImage.startsWith('/uploads') ? `${window.location.origin}${backgroundImage}` : backgroundImage} 
+              src={backgroundImage} 
               alt="Memorial background" 
               className="object-cover w-full h-full" 
               onError={(e) => {
@@ -112,7 +108,7 @@ export default function Header({ minimal = false }: HeaderProps) {
             <Link href="/" className="text-white text-xl font-heading font-bold">
               {siteTitle}
             </Link>
-            
+
             {/* Desktop navigation links */}
             <div className="hidden md:flex space-x-6">
               {navLinks.map((link) => (
@@ -134,7 +130,7 @@ export default function Header({ minimal = false }: HeaderProps) {
                 </Link>
               )}
             </div>
-            
+
             {/* Auth button and mobile menu toggle */}
             <div className="flex items-center space-x-2">
               <Button 
@@ -144,7 +140,7 @@ export default function Header({ minimal = false }: HeaderProps) {
               >
                 {isLoggedIn ? "Sign Out" : "Sign In"}
               </Button>
-              
+
               {/* Mobile menu toggle button */}
               <Button
                 variant="ghost"
@@ -191,7 +187,7 @@ export default function Header({ minimal = false }: HeaderProps) {
             {/* Tribute image */}
             <div className="mb-8 w-48 h-48 sm:w-64 sm:h-64 rounded-full overflow-hidden border-4 border-white shadow-lg">
               <img 
-                src={tributeImage && tributeImage.startsWith('/uploads') ? `${window.location.origin}${tributeImage}` : tributeImage} 
+                src={tributeImage} 
                 alt="Memorial Portrait" 
                 className="w-full h-full object-cover"
               />
