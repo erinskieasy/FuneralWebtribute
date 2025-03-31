@@ -72,7 +72,7 @@ export default function Header({ minimal = false }: HeaderProps) {
     { name: "Home", path: "/" },
     { name: "Gallery", path: "/gallery" },
     { name: "Tributes", path: "/#tributes" },
-    { name: "Funeral Program", path: "/#program" },
+    { name: "Funeral Program", path: "/program" },
   ];
 
   // Helper function to determine if a nav link is active
