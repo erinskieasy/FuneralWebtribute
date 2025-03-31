@@ -271,36 +271,54 @@ export default function ContentManager() {
       updatedCount++;
     }
     
-    // Update resource links - first clear existing resources
-    updateSettingMutation.mutate({ key: "resourceName1", value: "" });
-    updateSettingMutation.mutate({ key: "resourceLink1", value: "" });
-    updateSettingMutation.mutate({ key: "resourceName2", value: "" });
-    updateSettingMutation.mutate({ key: "resourceLink2", value: "" });
-    updateSettingMutation.mutate({ key: "resourceName3", value: "" });
-    updateSettingMutation.mutate({ key: "resourceLink3", value: "" });
+    // Update resources (limited to 3) with new values
+    // For each resource slot, either set it to the value from our resources array
+    // or update it with placeholder values if not present
     
-    // Then update with new values from resources array (limited to 3)
-    resources.forEach((resource, index) => {
-      if (index === 0) {
-        updateSettingMutation.mutate({ key: "resourceName1", value: resource.name });
-        updateSettingMutation.mutate({ key: "resourceLink1", value: resource.link });
-        updatedCount += 2;
-      } else if (index === 1) {
-        updateSettingMutation.mutate({ key: "resourceName2", value: resource.name });
-        updateSettingMutation.mutate({ key: "resourceLink2", value: resource.link });
-        updatedCount += 2;
-      } else if (index === 2) {
-        updateSettingMutation.mutate({ key: "resourceName3", value: resource.name });
-        updateSettingMutation.mutate({ key: "resourceLink3", value: resource.link });
-        updatedCount += 2;
-      }
-    });
+    // Resource 1
+    if (resources.length >= 1) {
+      // We have data for this resource
+      updateSettingMutation.mutate({ key: "resourceName1", value: resources[0].name || "Resource" });
+      updateSettingMutation.mutate({ key: "resourceLink1", value: resources[0].link || "#" });
+      updatedCount += 2;
+    } else if (settings?.resourceName1) {
+      // No resource but we need to clear an existing one, use placeholder instead of empty
+      updateSettingMutation.mutate({ key: "resourceName1", value: "Resource" });
+      updateSettingMutation.mutate({ key: "resourceLink1", value: "#" });
+      updatedCount += 2;
+    }
+    
+    // Resource 2
+    if (resources.length >= 2) {
+      // We have data for this resource
+      updateSettingMutation.mutate({ key: "resourceName2", value: resources[1].name || "Resource" });
+      updateSettingMutation.mutate({ key: "resourceLink2", value: resources[1].link || "#" });
+      updatedCount += 2;
+    } else if (settings?.resourceName2) {
+      // No resource but we need to clear an existing one, use placeholder instead of empty
+      updateSettingMutation.mutate({ key: "resourceName2", value: "Resource" });
+      updateSettingMutation.mutate({ key: "resourceLink2", value: "#" });
+      updatedCount += 2;
+    }
+    
+    // Resource 3
+    if (resources.length >= 3) {
+      // We have data for this resource
+      updateSettingMutation.mutate({ key: "resourceName3", value: resources[2].name || "Resource" });
+      updateSettingMutation.mutate({ key: "resourceLink3", value: resources[2].link || "#" });
+      updatedCount += 2;
+    } else if (settings?.resourceName3) {
+      // No resource but we need to clear an existing one, use placeholder instead of empty
+      updateSettingMutation.mutate({ key: "resourceName3", value: "Resource" });
+      updateSettingMutation.mutate({ key: "resourceLink3", value: "#" });
+      updatedCount += 2;
+    }
     
     if (resources.length > 3) {
       toast({
         title: "Resource limit",
         description: "Only the first 3 resources will be saved. To save more resources, please contact support.",
-        variant: "warning"
+        variant: "destructive"
       });
     }
     
