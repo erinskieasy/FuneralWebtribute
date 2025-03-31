@@ -146,9 +146,17 @@ export default function ContentManager() {
     },
     onSuccess: (data) => {
       console.log('Upload Success Response:', data);
+      
+      // Update local state immediately based on the key that was uploaded
+      if (data.key === "backgroundImage") {
+        setBackgroundImage(data.value);
+      } else if (data.key === "tributeImage") {
+        setTributeImage(data.value);
+      }
+      
+      // Then invalidate the query to refresh all settings
       queryClient.invalidateQueries({ queryKey: ["/api/settings"] });
-      // Verify the state after upload
-      console.log('Current Tribute Image State:', tributeImage);
+      
       toast({
         title: "Image uploaded",
         description: "Your image has been uploaded successfully.",
@@ -316,16 +324,18 @@ export default function ContentManager() {
                   </Button>
                 </div>
                 {tributeImage && (
-                  <div className="mt-2 w-full max-w-[16rem] mx-auto h-40 rounded-md border border-border overflow-hidden">
-                    <img
-                      src={tributeImage}
-                      alt="Tribute preview"
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        console.error('Failed to load tribute image:', tributeImage?.slice(0, 100));
-                        e.currentTarget.style.display = 'none';
-                      }}
-                    />
+                  <div className="mt-2 flex justify-center">
+                    <div className="w-40 h-40 border border-border rounded-md overflow-hidden">
+                      <img
+                        src={tributeImage}
+                        alt="Tribute preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          console.error('Failed to load tribute image:', tributeImage?.slice(0, 100));
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    </div>
                   </div>
                 )}
                 <p className="text-xs text-muted-foreground">
