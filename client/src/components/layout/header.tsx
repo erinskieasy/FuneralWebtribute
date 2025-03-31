@@ -100,6 +100,23 @@ export default function Header({ minimal = false }: HeaderProps) {
     if (path === "/") return location === "/";
     return location.includes(path);
   };
+  
+  // Handle navigation to hash links (scrolling to sections)
+  const handleNavClick = (path: string, e: React.MouseEvent) => {
+    if (path.startsWith('/#')) {
+      e.preventDefault();
+      const targetId = path.substring(2); // Remove the /# prefix
+      const targetElement = document.getElementById(targetId);
+      
+      if (targetElement) {
+        // Scroll to the element
+        targetElement.scrollIntoView({ behavior: 'smooth' });
+        
+        // Update the URL without triggering a route change
+        window.history.pushState(null, '', path);
+      }
+    }
+  };
 
   return (
     <>
@@ -140,6 +157,7 @@ export default function Header({ minimal = false }: HeaderProps) {
                   key={link.path}
                   href={link.path} 
                   className={`text-white hover:text-memorial-gray transition ${isActive(link.path) ? "border-b-2 border-memorial-blue" : ""}`}
+                  onClick={(e) => handleNavClick(link.path, e)}
                 >
                   {link.name}
                 </Link>
@@ -186,7 +204,10 @@ export default function Header({ minimal = false }: HeaderProps) {
                   key={link.path}
                   href={link.path} 
                   className={`text-white hover:text-memorial-gray transition py-2 ${isActive(link.path) ? "border-l-4 border-memorial-blue pl-2" : ""}`}
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={(e) => {
+                    handleNavClick(link.path, e);
+                    setIsMobileMenuOpen(false);
+                  }}
                 >
                   {link.name}
                 </Link>
@@ -233,7 +254,17 @@ export default function Header({ minimal = false }: HeaderProps) {
             <p className="text-lg text-white max-w-2xl mb-10">{tributeHeadline}</p>
             {/* Call-to-action buttons */}
             <div className="flex flex-wrap justify-center gap-4">
-              <Link href="#tributes">
+              <Link 
+                href="#tributes"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const targetElement = document.getElementById('tributes');
+                  if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth' });
+                    window.history.pushState(null, '', '/#tributes');
+                  }
+                }}
+              >
                 <Button 
                   variant="default"
                   className="bg-white text-primary hover:bg-neutral-200 font-semibold"
@@ -242,7 +273,17 @@ export default function Header({ minimal = false }: HeaderProps) {
                   Share a Memory
                 </Button>
               </Link>
-              <Link href="#program">
+              <Link 
+                href="#program"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const targetElement = document.getElementById('program');
+                  if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth' });
+                    window.history.pushState(null, '', '/#program');
+                  }
+                }}
+              >
                 <Button
                   variant="secondary"
                   className="text-white font-semibold"
