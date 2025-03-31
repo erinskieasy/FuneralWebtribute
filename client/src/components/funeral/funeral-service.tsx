@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { FuneralProgram } from "@/lib/types";
+import { FuneralProgram, SiteSettings } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, MapPin, FileText, Video } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -8,6 +8,9 @@ import { Link } from "wouter";
 export default function FuneralService() {
   const { data: program, isLoading } = useQuery<FuneralProgram>({
     queryKey: ["/api/funeral-program"],
+  });
+  const { data: settings } = useQuery<SiteSettings>({
+    queryKey: ["/api/settings"],
   });
 
   if (isLoading) {
