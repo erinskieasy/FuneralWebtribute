@@ -188,12 +188,22 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   <FormItem>
                     <FormLabel>Full Name</FormLabel>
                     <FormControl>
+                      {/* TEMPORARY FIX: Direct input value manipulation to bypass Dialog event issues */}
                       <Input 
                         placeholder="Enter your full name" 
-                        className="relative z-[100] pointer-events-auto" 
-                        onKeyDown={(e) => e.stopPropagation()}
+                        className="relative"
+                        onKeyDown={(e) => {
+                          // Stop event propagation and prevent default handling
+                          e.stopPropagation();
+                          e.preventDefault();
+                          // Manually update input value and trigger form state change
+                          const target = e.target as HTMLInputElement;
+                          target.value = target.value + e.key;
+                          field.onChange(target.value);
+                        }}
                         {...field} 
                       />
+                      {/* END TEMPORARY FIX */}
                     </FormControl>
                     <FormMessage />
                   </FormItem>
