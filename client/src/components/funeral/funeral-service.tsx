@@ -107,7 +107,7 @@ export default function FuneralService() {
 
         <div className="text-center">
           <p className="text-lg mb-6">For those unable to attend in person, the service will be livestreamed.</p>
-          <p className="italic text-gray-600">In lieu of flowers, the family requests donations to the Ocean Conservation Society, a cause dear to Chris's heart.</p>
+          <p className="italic text-gray-600">In place of flowers, we invite you to leave your warmest tributes on the wall below. You may also light a virtual candle on messages that resonate with your heart—together, let us keep Chris’s spirit aglow through our shared love and memories..</p>
         </div>
       </div>
     </section>

@@ -43,7 +43,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <h3 className="text-xl font-heading font-bold mb-4">Contact Information</h3>
-            <p className="mb-2">For questions about the memorial service:</p>
+            <p className="mb-2">To get a webiste like this for your loved ones:</p>
             <p className="mb-4">
               <a 
                 href={`mailto:${contactEmail}`}
