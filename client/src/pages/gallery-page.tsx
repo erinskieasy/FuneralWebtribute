@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
-import { GalleryImage } from "@/lib/types";
+import { GalleryImage, SiteSettings } from "@/lib/types";
 import ImageLightbox from "@/components/gallery/image-lightbox";
 import { Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,10 +11,15 @@ export default function GalleryPage() {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
+  // Fetch settings
+  const { data: settings } = useQuery<SiteSettings>({
+    queryKey: ["/api/settings"],
+  });
+  
   // Set page title
   useEffect(() => {
-    document.title = "Gallery of Memories - Chris Murphey Memorial";
-  }, []);
+    document.title = `Gallery of Memories - ${settings?.siteTitle || "Memorial"}`;
+  }, [settings]);
   
   const { data: images, isLoading } = useQuery<GalleryImage[]>({
     queryKey: ["/api/gallery"],

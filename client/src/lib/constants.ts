@@ -12,6 +12,6 @@ export const DEFAULT_RESOURCE_LINK_2 = "#";
 export const DEFAULT_RESOURCE_NAME_3 = "Memorial Fund";
 export const DEFAULT_RESOURCE_LINK_3 = "#";
 
-export const SITE_TITLE = "Chris Murphey Memorial";
-export const LIFE_DATES = "1975 - 2023";
+export const SITE_TITLE = "Memorial";
+export const LIFE_DATES = "1960 - 2025";
 export const TRIBUTE_HEADLINE = "A beloved father, husband, and friend whose kindness and spirit touched the lives of everyone around him.";

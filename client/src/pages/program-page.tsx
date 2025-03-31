@@ -2,16 +2,21 @@ import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
-import { FuneralProgram } from "@/lib/types";
+import { FuneralProgram, SiteSettings } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, MapPin, FileText, Video } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProgramPage() {
+  // Fetch settings
+  const { data: settings } = useQuery<SiteSettings>({
+    queryKey: ["/api/settings"],
+  });
+  
   // Set page title
   useEffect(() => {
-    document.title = "Funeral Program - Chris Murphey Memorial";
-  }, []);
+    document.title = `Funeral Program - ${settings?.siteTitle || "Memorial"}`;
+  }, [settings]);
   
   const { data: program, isLoading } = useQuery<FuneralProgram>({
     queryKey: ["/api/funeral-program"],
@@ -155,16 +160,16 @@ export default function ProgramPage() {
                   ) : (
                     <>
                       <p>
-                        Join us as we celebrate the life of Chris Murphey, a beloved father, husband, and friend whose kindness and spirit touched the lives of everyone around him.
+                        Join us as we celebrate the life of {settings?.siteTitle?.split(' ')[0] || 'our loved one'}, a beloved father, husband, and friend whose kindness and spirit touched the lives of everyone around him.
                       </p>
                       <p>
-                        The service will include heartfelt eulogies from family and close friends, music that Chris loved, and an opportunity for attendees to share their favorite memories.
+                        The service will include heartfelt eulogies from family and close friends, music that {settings?.siteTitle?.split(' ')[0] || 'our loved one'} loved, and an opportunity for attendees to share their favorite memories.
                       </p>
                       <p>
                         For those unable to attend in person, the service will be livestreamed via the link above.
                       </p>
                       <p className="italic text-gray-600 mt-6">
-                        In lieu of flowers, the family requests donations to the Ocean Conservation Society, a cause dear to Chris's heart.
+                        In lieu of flowers, the family requests donations to the Ocean Conservation Society, a cause dear to {settings?.siteTitle?.split(' ')[0] || 'our loved one'}'s heart.
                       </p>
                     </>
                   )}

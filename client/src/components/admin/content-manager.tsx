@@ -78,7 +78,7 @@ export default function ContentManager() {
       setBackgroundImage(settings.backgroundImage || "");
       setTributeImage(settings.tributeImage || "");
       setFooterMessage(settings.footerMessage || "");
-      setSiteTitle(settings.siteTitle || "Chris Murphey Memorial");
+      setSiteTitle(settings.siteTitle || "Memorial");
       setLifeDates(settings.lifeDates || "1975 - 2023");
       setTributeHeadline(settings.tributeHeadline || "A beloved father, husband, and friend whose kindness and spirit touched the lives of everyone around him.");
       
@@ -529,7 +529,7 @@ export default function ContentManager() {
                       id="siteTitle"
                       value={siteTitle}
                       onChange={(e) => setSiteTitle(e.target.value)}
-                      placeholder="Chris Murphey Memorial"
+                      placeholder="Memorial"
                     />
                     <p className="text-xs text-muted-foreground">
                       The name that appears in the header of the website

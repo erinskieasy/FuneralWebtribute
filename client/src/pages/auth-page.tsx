@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
@@ -13,6 +14,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { SiteSettings } from "@/lib/types";
 
 const loginSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -33,10 +35,15 @@ export default function AuthPage() {
   const [location, setLocation] = useLocation();
   const { isLoggedIn, user, loginMutation, registerMutation } = useAuth();
   
+  // Fetch settings
+  const { data: settings } = useQuery<SiteSettings>({
+    queryKey: ["/api/settings"],
+  });
+  
   // Set page title
   useEffect(() => {
-    document.title = "Sign In - Chris Murphey Memorial";
-  }, []);
+    document.title = `Sign In - ${settings?.siteTitle || "Memorial"}`;
+  }, [settings]);
   
   // Redirect if already logged in
   useEffect(() => {
@@ -95,7 +102,7 @@ export default function AuthPage() {
                 <CardHeader>
                   <CardTitle className="text-2xl">Sign In or Create Account</CardTitle>
                   <CardDescription>
-                    Join the Chris Murphey Memorial community to share your memories and light candles
+                    Join the {settings?.siteTitle || "Memorial"} community to share your memories and light candles
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -237,16 +244,16 @@ export default function AuthPage() {
             
             <div className="hidden md:block">
               <div className="bg-white p-8 rounded-lg shadow-md">
-                <h2 className="text-3xl font-heading font-bold mb-6">Remembering Chris</h2>
+                <h2 className="text-3xl font-heading font-bold mb-6">Remembering {settings?.siteTitle?.split(' ')[0] || 'Our Loved One'}</h2>
                 <p className="mb-4">
-                  Join our community to share your memories of Chris Murphey and connect with others who knew him.
+                  Join our community to share your memories of {settings?.siteTitle || 'our loved one'} and connect with others who knew them.
                 </p>
                 <p className="mb-4">
                   By creating an account, you'll be able to:
                 </p>
                 <ul className="list-disc pl-6 mb-6 space-y-2">
                   <li>Share your personal memories and stories</li>
-                  <li>Post photos and videos you have of Chris</li>
+                  <li>Post photos and videos</li>
                   <li>Light digital candles on others' tributes</li>
                   <li>Receive updates about memorial events</li>
                 </ul>

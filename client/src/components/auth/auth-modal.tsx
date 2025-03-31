@@ -8,6 +8,8 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useQuery } from "@tanstack/react-query";
+import { SiteSettings } from "@/lib/types";
 
 // Props interface
 interface AuthModalProps {
@@ -31,6 +33,12 @@ const registerSchema = z.object({
 export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [isLoginView, setIsLoginView] = useState(true);
   const { loginMutation, registerMutation } = useAuth();
+  
+  // Get settings for dynamic name reference
+  const { data: settings } = useQuery<SiteSettings>({
+    queryKey: ["/api/settings"],
+    enabled: isOpen,
+  });
 
   // Separate form handlers
   const LoginForm = () => {
@@ -202,8 +210,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           <DialogTitle>{isLoginView ? "Sign In" : "Create Account"}</DialogTitle>
           <DialogDescription>
             {isLoginView
-              ? "Sign in to share your memories of Chris"
-              : "Create an account to share your memories of Chris"}
+              ? `Sign in to share your memories of ${settings?.siteTitle?.split(' ')[0] || 'our loved one'}`
+              : `Create an account to share your memories of ${settings?.siteTitle?.split(' ')[0] || 'our loved one'}`}
           </DialogDescription>
         </DialogHeader>
 

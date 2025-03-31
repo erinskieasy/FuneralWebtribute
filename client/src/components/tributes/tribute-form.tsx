@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -114,7 +114,7 @@ export default function TributeForm({ onTributePosted, visible }: TributeFormPro
           
           <Textarea
             className="w-full p-4 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-primary"
-            placeholder="Share your memory of Chris..."
+            placeholder={`Share your memory of ${settings?.siteTitle?.split(' ')[0]}...`}
             rows={4}
             value={content}
             onChange={(e) => setContent(e.target.value)}
