@@ -31,7 +31,7 @@ export default function FuneralService() {
     <section id="program" className="py-16 px-6 bg-neutral-100">
       <div className="container mx-auto max-w-4xl">
         <h2 className="text-3xl font-heading font-bold text-center mb-12">Funeral Service</h2>
-        
+
         <div className="bg-white rounded-lg shadow-md p-8 mb-12">
           <div className="flex flex-col md:flex-row gap-8 items-center">
             <div className="md:w-1/3">
@@ -84,7 +84,7 @@ export default function FuneralService() {
                     </a>
                   </Button>
                 )}
-                
+
                 {program.streamLink && (
                   <Button 
                     variant="secondary"
@@ -107,7 +107,7 @@ export default function FuneralService() {
 
         <div className="text-center">
           <p className="text-lg mb-6">For those unable to attend in person, the service will be livestreamed.</p>
-          <p className="italic text-gray-600">In place of flowers, we invite you to leave your warmest tributes on the wall below. You may also light a virtual candle on messages that resonate with your heart—together, let us keep Chris’s spirit aglow through our shared love and memories..</p>
+          <p className="italic text-gray-600">In place of flowers, we invite you to leave your warmest tributes on the wall below. You may also light a virtual candle on messages that resonate with your heart—together, let us keep {settings?.siteTitle?.split(' ')[0]}'s spirit aglow through our shared love and memories.</p>
         </div>
       </div>
     </section>
@@ -119,7 +119,7 @@ function FuneralServiceSkeleton() {
     <section id="program" className="py-16 px-6 bg-neutral-100">
       <div className="container mx-auto max-w-4xl">
         <h2 className="text-3xl font-heading font-bold text-center mb-12">Funeral Service</h2>
-        
+
         <div className="bg-white rounded-lg shadow-md p-8 mb-12">
           <div className="flex flex-col md:flex-row gap-8 items-center">
             <div className="md:w-1/3">
