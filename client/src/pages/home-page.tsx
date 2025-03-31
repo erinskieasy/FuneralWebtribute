@@ -17,7 +17,7 @@ export default function HomePage() {
     <div className="min-h-screen flex flex-col">
       <Header />
       
-      <main className="flex-grow">
+      <main className="flex-grow mt-8">
         <GalleryPreview />
         <FuneralService />
         <TributeWall />

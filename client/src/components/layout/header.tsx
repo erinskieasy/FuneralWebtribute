@@ -83,23 +83,21 @@ export default function Header({ minimal = false }: HeaderProps) {
   return (
     <>
       {/* Main header container with conditional full-screen height */}
-      <header className={`${minimal ? "relative bg-primary" : "relative h-screen max-h-[800px] overflow-hidden"}`}>
+      <header className={`${minimal ? "relative bg-primary" : "relative min-h-[700px] h-[90vh] max-h-[900px] overflow-hidden"}`}>
         {/* Background image section - only shown in full header mode */}
         {!minimal && (
           <div className="absolute inset-0 z-0">
             <img 
               src={backgroundImage.startsWith('/uploads') ? `${window.location.origin}${backgroundImage}` : backgroundImage} 
               alt="Memorial background" 
-              className="object-cover w-full h-full border-2 border-red-500" 
-              onLoad={() => {
-                console.log('Background image loaded successfully');
-              }}
+              className="object-cover w-full h-full" 
               onError={(e) => {
                 console.error('Failed to load image:', backgroundImage);
                 e.currentTarget.style.display = 'none';
               }}
             />
-            {/* Overlay temporarily removed for testing */}
+            {/* Overlay to darken the background image - reduced opacity to 30% */}
+            <div className="absolute inset-0 bg-primary bg-opacity-30"></div>
           </div>
         )}
 
@@ -197,7 +195,7 @@ export default function Header({ minimal = false }: HeaderProps) {
             {/* Tribute information */}
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-heading font-bold text-white mb-4">Chris Murphey</h1>
             <p className="text-xl text-white mb-8">{LIFE_DATES}</p>
-            <p className="text-lg text-white max-w-2xl mb-12">{TRIBUTE_HEADLINE}</p>
+            <p className="text-lg text-white max-w-2xl mb-10">{TRIBUTE_HEADLINE}</p>
             {/* Call-to-action buttons */}
             <div className="flex flex-wrap justify-center gap-4">
               <Link href="#tributes">
