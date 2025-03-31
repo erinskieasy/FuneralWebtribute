@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -10,30 +11,38 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
+// Props interface for the AuthModal component
 interface AuthModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen: boolean;          // Controls visibility of the modal
+  onClose: () => void;      // Callback function to close the modal
 }
 
+// Zod schema for login form validation
 const loginSchema = z.object({
   username: z.string().min(1, "Username is required"),
   password: z.string().min(1, "Password is required"),
 });
 
+// Zod schema for registration form validation with more stringent requirements
 const registerSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
   password: z.string().min(6, "Password must be at least 6 characters"),
   name: z.string().min(2, "Full name is required"),
-  email: z.string().email("Must be a valid email").optional().or(z.literal("")),
+  email: z.string().email("Must be a valid email").optional().or(z.literal("")), // Optional email field
 });
 
+// Type definitions inferred from the Zod schemas
 type LoginFormValues = z.infer<typeof loginSchema>;
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
+  // State to toggle between login and registration views
   const [isLoginView, setIsLoginView] = useState(true);
+  
+  // Custom hook providing authentication-related mutations
   const { loginMutation, registerMutation } = useAuth();
   
+  // Initialize login form with React Hook Form and Zod validation
   const loginForm = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -42,6 +51,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     },
   });
   
+  // Initialize registration form with React Hook Form and Zod validation
   const registerForm = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -52,23 +62,26 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     },
   });
   
+  // Handler for login form submission
   const handleLoginSubmit = (values: LoginFormValues) => {
     loginMutation.mutate(values, {
       onSuccess: () => {
-        onClose();
+        onClose(); // Close modal on successful login
       },
     });
   };
   
+  // Handler for registration form submission
   const handleRegisterSubmit = (values: RegisterFormValues) => {
     registerMutation.mutate(values, {
       onSuccess: () => {
-        onClose();
+        onClose(); // Close modal on successful registration
       },
     });
   };
 
   return (
+    // Dialog component from shadcn/ui for modal functionality
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
@@ -81,9 +94,12 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           </DialogDescription>
         </DialogHeader>
         
+        {/* Conditional rendering based on view type (login/register) */}
         {isLoginView ? (
+          // Login Form
           <Form {...loginForm}>
             <form onSubmit={loginForm.handleSubmit(handleLoginSubmit)} className="space-y-4">
+              {/* Username field */}
               <FormField
                 control={loginForm.control}
                 name="username"
@@ -98,6 +114,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 )}
               />
               
+              {/* Password field */}
               <FormField
                 control={loginForm.control}
                 name="password"
@@ -112,6 +129,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 )}
               />
               
+              {/* Submit button with loading state */}
               <Button
                 type="submit"
                 className="w-full bg-primary text-white"
@@ -127,6 +145,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 )}
               </Button>
               
+              {/* Toggle to registration view */}
               <div className="text-center mt-4">
                 <p className="text-sm">
                   Don't have an account?{" "}
@@ -143,8 +162,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             </form>
           </Form>
         ) : (
+          // Registration Form
           <Form {...registerForm}>
             <form onSubmit={registerForm.handleSubmit(handleRegisterSubmit)} className="space-y-4">
+              {/* Username field */}
               <FormField
                 control={registerForm.control}
                 name="username"
@@ -159,6 +180,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 )}
               />
               
+              {/* Full Name field */}
               <FormField
                 control={registerForm.control}
                 name="name"
@@ -173,6 +195,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 )}
               />
               
+              {/* Optional Email field */}
               <FormField
                 control={registerForm.control}
                 name="email"
@@ -187,6 +210,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 )}
               />
               
+              {/* Password field */}
               <FormField
                 control={registerForm.control}
                 name="password"
@@ -201,6 +225,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 )}
               />
               
+              {/* Submit button with loading state */}
               <Button
                 type="submit"
                 className="w-full bg-primary text-white"
@@ -216,6 +241,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 )}
               </Button>
               
+              {/* Toggle to login view */}
               <div className="text-center mt-4">
                 <p className="text-sm">
                   Already have an account?{" "}
