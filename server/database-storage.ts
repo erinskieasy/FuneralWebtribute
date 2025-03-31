@@ -45,8 +45,8 @@ export class DatabaseStorage implements IStorage {
       
       if (existingSettings.length === 0) {
         // Initialize default settings
-        await this.upsertSetting({ key: "backgroundImage", value: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e" });
-        await this.upsertSetting({ key: "tributeImage", value: "https://images.unsplash.com/photo-1552058544-f2b08422138a" });
+        await this.upsertSetting({ key: "backgroundImage", value: "" });
+        await this.upsertSetting({ key: "tributeImage", value: "" });
         await this.upsertSetting({ key: "footerMessage", value: "\"As long as we live, they too will live, for they are now a part of us, as we remember them.\"" });
         
         // Add sample gallery image
