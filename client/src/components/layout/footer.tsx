@@ -1,7 +1,17 @@
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { SiteSettings } from "@/lib/types";
-import { DEFAULT_FOOTER_MESSAGE } from "@/lib/constants";
+import { 
+  DEFAULT_FOOTER_MESSAGE, 
+  DEFAULT_CONTACT_EMAIL, 
+  DEFAULT_CONTACT_PHONE,
+  DEFAULT_RESOURCE_NAME_1,
+  DEFAULT_RESOURCE_LINK_1,
+  DEFAULT_RESOURCE_NAME_2,
+  DEFAULT_RESOURCE_LINK_2,
+  DEFAULT_RESOURCE_NAME_3,
+  DEFAULT_RESOURCE_LINK_3
+} from "@/lib/constants";
 import { useAuth } from "@/hooks/use-auth";
 
 export default function Footer() {
@@ -11,6 +21,14 @@ export default function Footer() {
   const { isAdmin } = useAuth();
 
   const footerMessage = settings?.footerMessage || DEFAULT_FOOTER_MESSAGE;
+  const contactEmail = settings?.contactEmail || DEFAULT_CONTACT_EMAIL;
+  const contactPhone = settings?.contactPhone || DEFAULT_CONTACT_PHONE;
+  const resourceName1 = settings?.resourceName1 || DEFAULT_RESOURCE_NAME_1;
+  const resourceLink1 = settings?.resourceLink1 || DEFAULT_RESOURCE_LINK_1;
+  const resourceName2 = settings?.resourceName2 || DEFAULT_RESOURCE_NAME_2;
+  const resourceLink2 = settings?.resourceLink2 || DEFAULT_RESOURCE_LINK_2;
+  const resourceName3 = settings?.resourceName3 || DEFAULT_RESOURCE_NAME_3;
+  const resourceLink3 = settings?.resourceLink3 || DEFAULT_RESOURCE_LINK_3;
 
   return (
     <footer className="bg-primary text-white py-12 px-6">
@@ -21,19 +39,19 @@ export default function Footer() {
             <p className="mb-2">For questions about the memorial service:</p>
             <p className="mb-4">
               <a 
-                href="mailto:memorial@example.com" 
+                href={`mailto:${contactEmail}`}
                 className="hover:text-secondary transition"
               >
-                memorial@example.com
+                {contactEmail}
               </a>
             </p>
             <p className="mb-2">For other inquiries:</p>
             <p>
               <a 
-                href="tel:+1234567890" 
+                href={`tel:${contactPhone.replace(/[^\d+]/g, '')}`}
                 className="hover:text-secondary transition"
               >
-                (123) 456-7890
+                {contactPhone}
               </a>
             </p>
           </div>
@@ -41,21 +59,27 @@ export default function Footer() {
           <div>
             <h3 className="text-xl font-heading font-bold mb-4">Additional Resources</h3>
             <ul className="space-y-2">
-              <li>
-                <a href="#" className="hover:text-secondary transition">
-                  Grief Support Services
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-secondary transition">
-                  Ocean Conservation Society
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-secondary transition">
-                  Memorial Fund
-                </a>
-              </li>
+              {resourceName1 && resourceLink1 && (
+                <li>
+                  <a href={resourceLink1} className="hover:text-secondary transition">
+                    {resourceName1}
+                  </a>
+                </li>
+              )}
+              {resourceName2 && resourceLink2 && (
+                <li>
+                  <a href={resourceLink2} className="hover:text-secondary transition">
+                    {resourceName2}
+                  </a>
+                </li>
+              )}
+              {resourceName3 && resourceLink3 && (
+                <li>
+                  <a href={resourceLink3} className="hover:text-secondary transition">
+                    {resourceName3}
+                  </a>
+                </li>
+              )}
             </ul>
           </div>
           

@@ -40,6 +40,14 @@ export interface SiteSettings {
   backgroundImage: string;
   tributeImage: string;
   footerMessage: string;
+  contactEmail: string;
+  contactPhone: string;
+  resourceLink1: string;
+  resourceName1: string;
+  resourceLink2: string;
+  resourceName2: string;
+  resourceLink3: string;
+  resourceName3: string;
   [key: string]: string;
 }
 
