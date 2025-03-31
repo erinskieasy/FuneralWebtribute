@@ -8,6 +8,9 @@ import { Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 
 export default function TributeWall() {
+  const { data: settings } = useQuery<SiteSettings>({
+    queryKey: ["/api/settings"],
+  });
   const { isLoggedIn } = useAuth();
   const [isFormVisible, setIsFormVisible] = useState(true);
   
@@ -41,7 +44,7 @@ export default function TributeWall() {
       <div className="container mx-auto">
         <h2 className="text-3xl font-heading font-bold text-center mb-4">Share Your Memories</h2>
         <p className="text-center text-gray-600 max-w-2xl mx-auto mb-12">
-          Help us celebrate Chris's life by sharing your favorite memories, photos, and stories.
+          Help us celebrate {settings?.siteTitle?.split(' ')[0]}'s life by sharing your favorite memories, photos, and stories.
         </p>
         
         {/* Tribute Form */}
@@ -60,7 +63,7 @@ export default function TributeWall() {
             <div className="text-center p-8 border border-dashed border-gray-300 rounded-lg">
               <p className="text-gray-500 mb-4">No memories have been shared yet.</p>
               {isLoggedIn && (
-                <p className="text-gray-600">Be the first to share a memory of Chris.</p>
+                <p className="text-gray-600">Be the first to share a memory of {settings?.siteTitle?.split(' ')[0]}.</p>
               )}
             </div>
           ) : (
