@@ -45,7 +45,9 @@ export default function Header({ minimal = false }: HeaderProps) {
   useEffect(() => {
     if (settings) {
       console.log('Background Image Path:', backgroundImage);
-      console.log('Background Image URL:', backgroundImage.startsWith('/uploads') ? `${window.location.origin}${backgroundImage}` : backgroundImage);
+      if (backgroundImage) {
+        console.log('Background Image URL:', backgroundImage.startsWith('/uploads') ? `${window.location.origin}${backgroundImage}` : backgroundImage);
+      }
       console.log('Tribute Image Path:', tributeImage);
     }
   }, [settings, backgroundImage, tributeImage]);
