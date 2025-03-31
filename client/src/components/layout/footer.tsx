@@ -1,17 +1,7 @@
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { SiteSettings } from "@/lib/types";
-import { 
-  DEFAULT_FOOTER_MESSAGE, 
-  DEFAULT_CONTACT_EMAIL, 
-  DEFAULT_CONTACT_PHONE,
-  DEFAULT_RESOURCE_NAME_1,
-  DEFAULT_RESOURCE_LINK_1,
-  DEFAULT_RESOURCE_NAME_2,
-  DEFAULT_RESOURCE_LINK_2,
-  DEFAULT_RESOURCE_NAME_3,
-  DEFAULT_RESOURCE_LINK_3
-} from "@/lib/constants";
+import { DEFAULT_FOOTER_MESSAGE } from "@/lib/constants";
 import { useAuth } from "@/hooks/use-auth";
 
 export default function Footer() {
@@ -21,14 +11,32 @@ export default function Footer() {
   const { isAdmin } = useAuth();
 
   const footerMessage = settings?.footerMessage || DEFAULT_FOOTER_MESSAGE;
-  const contactEmail = settings?.contactEmail || DEFAULT_CONTACT_EMAIL;
-  const contactPhone = settings?.contactPhone || DEFAULT_CONTACT_PHONE;
-  const resourceName1 = settings?.resourceName1 || DEFAULT_RESOURCE_NAME_1;
-  const resourceLink1 = settings?.resourceLink1 || DEFAULT_RESOURCE_LINK_1;
-  const resourceName2 = settings?.resourceName2 || DEFAULT_RESOURCE_NAME_2;
-  const resourceLink2 = settings?.resourceLink2 || DEFAULT_RESOURCE_LINK_2;
-  const resourceName3 = settings?.resourceName3 || DEFAULT_RESOURCE_NAME_3;
-  const resourceLink3 = settings?.resourceLink3 || DEFAULT_RESOURCE_LINK_3;
+  const contactEmail = settings?.contactEmail || "";
+  const contactPhone = settings?.contactPhone || "";
+  
+  // Create an array of resources from the settings
+  const resources = [];
+  
+  if (settings?.resourceName1 && settings?.resourceLink1) {
+    resources.push({
+      name: settings.resourceName1,
+      link: settings.resourceLink1
+    });
+  }
+  
+  if (settings?.resourceName2 && settings?.resourceLink2) {
+    resources.push({
+      name: settings.resourceName2,
+      link: settings.resourceLink2
+    });
+  }
+  
+  if (settings?.resourceName3 && settings?.resourceLink3) {
+    resources.push({
+      name: settings.resourceName3,
+      link: settings.resourceLink3
+    });
+  }
 
   return (
     <footer className="bg-primary text-white py-12 px-6">
@@ -59,26 +67,15 @@ export default function Footer() {
           <div>
             <h3 className="text-xl font-heading font-bold mb-4">Additional Resources</h3>
             <ul className="space-y-2">
-              {resourceName1 && resourceLink1 && (
-                <li>
-                  <a href={resourceLink1} className="hover:text-secondary transition">
-                    {resourceName1}
+              {resources.map((resource, index) => (
+                <li key={index}>
+                  <a href={resource.link} className="hover:text-secondary transition">
+                    {resource.name}
                   </a>
                 </li>
-              )}
-              {resourceName2 && resourceLink2 && (
-                <li>
-                  <a href={resourceLink2} className="hover:text-secondary transition">
-                    {resourceName2}
-                  </a>
-                </li>
-              )}
-              {resourceName3 && resourceLink3 && (
-                <li>
-                  <a href={resourceLink3} className="hover:text-secondary transition">
-                    {resourceName3}
-                  </a>
-                </li>
+              ))}
+              {resources.length === 0 && (
+                <li className="text-white text-opacity-70">No resources available</li>
               )}
             </ul>
           </div>
