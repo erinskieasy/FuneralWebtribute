@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { TributeItem } from "@/lib/types";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { TributeItem, SiteSettings } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import TributeForm from "./tribute-form";
 import TributeCard from "./tribute-card";
