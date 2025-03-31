@@ -66,6 +66,7 @@ export default function ContentManager() {
   const [programAddress, setProgramAddress] = useState("");
   const [programStreamLink, setProgramStreamLink] = useState("");
   const [programPdfUrl, setProgramPdfUrl] = useState("");
+  const [serviceDescription, setServiceDescription] = useState("");
 
   // Update settings when data is loaded
   useEffect(() => {
@@ -116,6 +117,7 @@ export default function ContentManager() {
       setProgramAddress(funeralProgram.address || "");
       setProgramStreamLink(funeralProgram.streamLink || "");
       setProgramPdfUrl(funeralProgram.programPdfUrl || "");
+      setServiceDescription(funeralProgram.serviceDescription || "");
     }
   }, [funeralProgram]);
 
@@ -367,6 +369,7 @@ export default function ContentManager() {
       address: programAddress,
       streamLink: programStreamLink,
       programPdfUrl: programPdfUrl,
+      serviceDescription: serviceDescription,
     };
 
     updateProgramMutation.mutate(programData);
@@ -587,6 +590,21 @@ export default function ContentManager() {
                   onChange={(e) => setProgramPdfUrl(e.target.value)}
                   placeholder="https://example.com/program.pdf"
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="serviceDescription">About the Service</Label>
+                <Textarea
+                  id="serviceDescription"
+                  value={serviceDescription}
+                  onChange={(e) => setServiceDescription(e.target.value)}
+                  placeholder="Enter a description of the service..."
+                  rows={6}
+                  className="min-h-[180px]"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Provide details about the service, what to expect, and any special instructions for attendees
+                </p>
               </div>
 
               <Button 

@@ -34,6 +34,7 @@ export interface FuneralProgram {
   address: string;
   streamLink?: string;
   programPdfUrl?: string;
+  serviceDescription?: string;
 }
 
 export interface SiteSettings {

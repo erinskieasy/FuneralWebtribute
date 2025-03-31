@@ -148,18 +148,26 @@ export default function ProgramPage() {
               <div className="bg-white rounded-lg shadow-md p-8">
                 <h3 className="text-2xl font-heading font-bold mb-4">About the Service</h3>
                 <div className="prose max-w-none">
-                  <p>
-                    Join us as we celebrate the life of Chris Murphey, a beloved father, husband, and friend whose kindness and spirit touched the lives of everyone around him.
-                  </p>
-                  <p>
-                    The service will include heartfelt eulogies from family and close friends, music that Chris loved, and an opportunity for attendees to share their favorite memories.
-                  </p>
-                  <p>
-                    For those unable to attend in person, the service will be livestreamed via the link above.
-                  </p>
-                  <p className="italic text-gray-600 mt-6">
-                    In lieu of flowers, the family requests donations to the Ocean Conservation Society, a cause dear to Chris's heart.
-                  </p>
+                  {program.serviceDescription ? (
+                    program.serviceDescription.split('\n').map((paragraph, index) => (
+                      <p key={index}>{paragraph}</p>
+                    ))
+                  ) : (
+                    <>
+                      <p>
+                        Join us as we celebrate the life of Chris Murphey, a beloved father, husband, and friend whose kindness and spirit touched the lives of everyone around him.
+                      </p>
+                      <p>
+                        The service will include heartfelt eulogies from family and close friends, music that Chris loved, and an opportunity for attendees to share their favorite memories.
+                      </p>
+                      <p>
+                        For those unable to attend in person, the service will be livestreamed via the link above.
+                      </p>
+                      <p className="italic text-gray-600 mt-6">
+                        In lieu of flowers, the family requests donations to the Ocean Conservation Society, a cause dear to Chris's heart.
+                      </p>
+                    </>
+                  )}
                 </div>
               </div>
             </>

@@ -75,6 +75,7 @@ export const funeralProgram = pgTable("funeral_program", {
   address: text("address").notNull(),
   streamLink: text("stream_link"),
   programPdfUrl: text("program_pdf_url"),
+  serviceDescription: text("service_description"),
 });
 
 export const insertFuneralProgramSchema = createInsertSchema(funeralProgram).omit({
