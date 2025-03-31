@@ -1,7 +1,6 @@
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { SiteSettings } from "@/lib/types";
-import { DEFAULT_FOOTER_MESSAGE } from "@/lib/constants";
 import { useAuth } from "@/hooks/use-auth";
 
 export default function Footer() {
@@ -10,7 +9,7 @@ export default function Footer() {
   });
   const { isAdmin } = useAuth();
 
-  const footerMessage = settings?.footerMessage || DEFAULT_FOOTER_MESSAGE;
+  const footerMessage = settings?.footerMessage || "\"As long as we live, they too will live, for they are now a part of us, as we remember them.\""; 
   const contactEmail = settings?.contactEmail || "";
   const contactPhone = settings?.contactPhone || "";
   
@@ -97,7 +96,7 @@ export default function Footer() {
         
         <div className="border-t border-white border-opacity-20 mt-8 pt-8 text-center">
           <p className="text-sm text-white text-opacity-70">
-            © {new Date().getFullYear()} Chris Murphey Memorial. All rights reserved.
+            © {new Date().getFullYear()} {settings?.siteTitle || 'Memorial'}. All rights reserved.
           </p>
         </div>
       </div>

@@ -8,7 +8,7 @@ import AuthModal from "@/components/auth/auth-modal";
 import { SITE_TITLE } from "@/lib/constants";
 import { useQuery } from "@tanstack/react-query";
 import { SiteSettings } from "@/lib/types";
-import { DEFAULT_BACKGROUND_IMAGE, DEFAULT_TRIBUTE_IMAGE, LIFE_DATES, TRIBUTE_HEADLINE } from "@/lib/constants";
+
 
 // Interface defining the optional 'minimal' prop for the header
 interface HeaderProps {
@@ -35,11 +35,11 @@ export default function Header({ minimal = false }: HeaderProps) {
   });
 
   // Use settings data or fall back to defaults
-  const backgroundImage = settings?.backgroundImage || DEFAULT_BACKGROUND_IMAGE;
-  const tributeImage = settings?.tributeImage || DEFAULT_TRIBUTE_IMAGE;
-  const siteTitle = settings?.siteTitle || SITE_TITLE;
-  const lifeDates = settings?.lifeDates || LIFE_DATES;
-  const tributeHeadline = settings?.tributeHeadline || TRIBUTE_HEADLINE;
+  const backgroundImage = settings?.backgroundImage || '';
+  const tributeImage = settings?.tributeImage || '';
+  const siteTitle = settings?.siteTitle || 'Memorial Site';
+  const lifeDates = settings?.lifeDates || '';
+  const tributeHeadline = settings?.tributeHeadline || '';
   
   // Log image paths for debugging
   useEffect(() => {
@@ -91,7 +91,7 @@ export default function Header({ minimal = false }: HeaderProps) {
         {!minimal && (
           <div className="absolute inset-0 z-0">
             <img 
-              src={backgroundImage.startsWith('/uploads') ? `${window.location.origin}${backgroundImage}` : backgroundImage} 
+              src={backgroundImage && backgroundImage.startsWith('/uploads') ? `${window.location.origin}${backgroundImage}` : backgroundImage} 
               alt="Memorial background" 
               className="object-cover w-full h-full" 
               onError={(e) => {
@@ -189,13 +189,15 @@ export default function Header({ minimal = false }: HeaderProps) {
             {/* Tribute image */}
             <div className="mb-8 w-48 h-48 sm:w-64 sm:h-64 rounded-full overflow-hidden border-4 border-white shadow-lg">
               <img 
-                src={tributeImage.startsWith('/uploads') ? `${window.location.origin}${tributeImage}` : tributeImage} 
-                alt="Chris Murphey" 
+                src={tributeImage && tributeImage.startsWith('/uploads') ? `${window.location.origin}${tributeImage}` : tributeImage} 
+                alt="Memorial Portrait" 
                 className="w-full h-full object-cover"
               />
             </div>
             {/* Tribute information */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-heading font-bold text-white mb-4">{siteTitle.replace(" Memorial", "")}</h1>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-heading font-bold text-white mb-4">
+              {siteTitle && siteTitle.includes(" Memorial") ? siteTitle.replace(" Memorial", "") : siteTitle}
+            </h1>
             <p className="text-xl text-white mb-8">{lifeDates}</p>
             <p className="text-lg text-white max-w-2xl mb-10">{tributeHeadline}</p>
             {/* Call-to-action buttons */}

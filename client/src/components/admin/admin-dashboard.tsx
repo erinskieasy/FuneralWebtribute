@@ -8,7 +8,6 @@ import GalleryManager from "./gallery-manager";
 import UserManager from "./user-manager";
 import { useQuery } from "@tanstack/react-query";
 import { TributeItem, GalleryImage, SiteSettings } from "@/lib/types";
-import { SITE_TITLE } from "@/lib/constants";
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -40,7 +39,7 @@ export default function AdminDashboard() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold font-heading mb-2">Admin Dashboard</h1>
           <p className="text-gray-600">
-            Welcome, {user?.name}. Manage the {settings?.siteTitle || SITE_TITLE} site from this dashboard.
+            Welcome, {user?.name}. Manage the {settings?.siteTitle || 'Memorial'} site from this dashboard.
           </p>
         </div>
         
