@@ -52,7 +52,12 @@ function useLogoutMutation() {
   
   return useMutation({
     mutationFn: async () => {
-      await apiRequest("POST", "/api/logout");
+      try {
+        await apiRequest("POST", "/api/logout");
+      } catch (error) {
+        console.error("Logout error:", error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.setQueryData(["/api/user"], null);
@@ -63,11 +68,14 @@ function useLogoutMutation() {
       setLocation("/");
     },
     onError: (error: Error) => {
+      console.error("Logout mutation error:", error);
+      queryClient.setQueryData(["/api/user"], null); // Force logout state
       toast({
-        title: "Logout failed",
-        description: error.message,
+        title: "Logout issue",
+        description: "You have been logged out but encountered an error. Please refresh the page.",
         variant: "destructive",
       });
+      setLocation("/");
     },
   });
 }
