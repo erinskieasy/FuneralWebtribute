@@ -83,7 +83,7 @@ export default function Header({ minimal = false }: HeaderProps) {
   return (
     <>
       {/* Main header container with conditional full-screen height */}
-      <header className={`${minimal ? "relative bg-primary" : "relative min-h-[700px] h-[90vh] max-h-[900px] overflow-hidden"}`}>
+      <header className={`${minimal ? "relative bg-primary" : "relative min-h-[750px] h-[92vh] max-h-[1000px] overflow-hidden"}`}>
         {/* Background image section - only shown in full header mode */}
         {!minimal && (
           <div className="absolute inset-0 z-0">
@@ -96,8 +96,7 @@ export default function Header({ minimal = false }: HeaderProps) {
                 e.currentTarget.style.display = 'none';
               }}
             />
-            {/* Overlay to darken the background image - reduced opacity to 30% */}
-            <div className="absolute inset-0 bg-primary bg-opacity-30"></div>
+            {/* Overlay removed as requested */}
           </div>
         )}
 
