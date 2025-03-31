@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Image, Video } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import AuthModal from "@/components/auth/auth-modal";
+import {SiteSettings } from "@/lib/types";
 
 interface TributeFormProps {
   onTributePosted: () => void;
@@ -21,6 +22,9 @@ export default function TributeForm({ onTributePosted, visible }: TributeFormPro
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { toast } = useToast();
 
+  const { data: settings } = useQuery<SiteSettings>({
+    queryKey: ["/api/settings"],
+  });
   const tributeMutation = useMutation({
     mutationFn: async (formData: { content: string; mediaUrl?: string; mediaType?: string }) => {
       const res = await apiRequest("POST", "/api/tributes", formData);
@@ -84,7 +88,7 @@ export default function TributeForm({ onTributePosted, visible }: TributeFormPro
     <div className="bg-neutral-100 rounded-lg p-6 max-w-3xl mx-auto mb-12">
       {!isLoggedIn ? (
         <div className="text-center py-4">
-          <p className="mb-4">Please sign in to share your memory of Chris</p>
+          <p className="mb-4">Please sign in to share your memory of {settings?.siteTitle?.split(' ')[0]}</p>
           <Button 
             className="bg-primary text-white hover:bg-opacity-90"
             onClick={() => setIsAuthModalOpen(true)}
