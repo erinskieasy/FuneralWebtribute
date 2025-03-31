@@ -127,6 +127,15 @@ export class DatabaseStorage implements IStorage {
       return false;
     }
   }
+  
+  async getAllUsers(): Promise<User[]> {
+    try {
+      return await db.select().from(users);
+    } catch (error) {
+      console.error("Error getting all users:", error);
+      return [];
+    }
+  }
 
   // Tribute methods
   async getTributes(limit?: number, offset = 0): Promise<Tribute[]> {

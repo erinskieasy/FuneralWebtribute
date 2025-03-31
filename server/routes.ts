@@ -472,6 +472,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User Management Routes (Admin only)
+  app.get("/api/users", isAdmin, async (req, res) => {
+    try {
+      // This endpoint is for admin to get a list of all users
+      const users = await Promise.all(
+        (await dbStorage.getAllUsers()).map(user => {
+          // Remove password field for security
+          const { password, ...userWithoutPassword } = user;
+          return userWithoutPassword;
+        })
+      );
+      
+      res.json(users);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch users" });
+    }
+  });
+  
+  app.put("/api/users/:id/role", isAdmin, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const { isAdmin } = req.body;
+      
+      // Validate the isAdmin field is provided
+      if (typeof isAdmin !== 'boolean') {
+        return res.status(400).json({ message: "isAdmin field must be a boolean" });
+      }
+      
+      // Don't allow users to remove their own admin status
+      if (req.user.id === userId && !isAdmin) {
+        return res.status(403).json({ message: "You cannot remove your own admin status" });
+      }
+      
+      const updatedUser = await dbStorage.updateUser(userId, { isAdmin });
+      
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Return user without password
+      const { password, ...userWithoutPassword } = updatedUser;
+      res.json(userWithoutPassword);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update user role" });
+    }
+  });
+  
+  app.put("/api/users/:id/reset-password", isAdmin, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const { newPassword } = req.body;
+      
+      // Validate the new password
+      if (!newPassword || newPassword.length < 8) {
+        return res.status(400).json({ message: "Password must be at least 8 characters long" });
+      }
+      
+      // Hash the new password
+      const hashedPassword = await hashPassword(newPassword);
+      
+      const updatedUser = await dbStorage.updateUser(userId, { password: hashedPassword });
+      
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.json({ message: "Password reset successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to reset password" });
+    }
+  });
+
   // Settings Routes
   app.get("/api/settings", async (req, res) => {
     try {

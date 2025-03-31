@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import ContentManager from "./content-manager";
 import TributeManager from "./tribute-manager";
 import GalleryManager from "./gallery-manager";
+import UserManager from "./user-manager";
 import { useQuery } from "@tanstack/react-query";
 import { TributeItem, GalleryImage } from "@/lib/types";
 
@@ -87,6 +88,7 @@ export default function AdminDashboard() {
             <TabsTrigger value="content">Content Management</TabsTrigger>
             <TabsTrigger value="tributes">Tribute Management</TabsTrigger>
             <TabsTrigger value="gallery">Gallery Management</TabsTrigger>
+            <TabsTrigger value="users">User Management</TabsTrigger>
           </TabsList>
           
           <TabsContent value="content" className="mt-4">
@@ -99,6 +101,10 @@ export default function AdminDashboard() {
           
           <TabsContent value="gallery" className="mt-4">
             <GalleryManager />
+          </TabsContent>
+          
+          <TabsContent value="users" className="mt-4">
+            <UserManager />
           </TabsContent>
         </Tabs>
       </div>
