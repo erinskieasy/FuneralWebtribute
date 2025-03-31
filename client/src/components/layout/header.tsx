@@ -255,14 +255,9 @@ export default function Header({ minimal = false }: HeaderProps) {
             {/* Call-to-action buttons */}
             <div className="flex flex-wrap justify-center gap-4">
               <Link 
-                href="#tributes"
+                href="/#tributes"
                 onClick={(e) => {
-                  e.preventDefault();
-                  const targetElement = document.getElementById('tributes');
-                  if (targetElement) {
-                    targetElement.scrollIntoView({ behavior: 'smooth' });
-                    window.history.pushState(null, '', '/#tributes');
-                  }
+                  handleNavClick('/#tributes', e);
                 }}
               >
                 <Button 
@@ -274,14 +269,9 @@ export default function Header({ minimal = false }: HeaderProps) {
                 </Button>
               </Link>
               <Link 
-                href="#program"
+                href="/#program"
                 onClick={(e) => {
-                  e.preventDefault();
-                  const targetElement = document.getElementById('program');
-                  if (targetElement) {
-                    targetElement.scrollIntoView({ behavior: 'smooth' });
-                    window.history.pushState(null, '', '/#program');
-                  }
+                  handleNavClick('/#program', e);
                 }}
               >
                 <Button
