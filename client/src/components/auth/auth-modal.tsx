@@ -188,7 +188,12 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   <FormItem>
                     <FormLabel>Full Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter your full name" {...field} />
+                      <Input 
+                        placeholder="Enter your full name" 
+                        className="relative z-[100] pointer-events-auto" 
+                        onKeyDown={(e) => e.stopPropagation()}
+                        {...field} 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
