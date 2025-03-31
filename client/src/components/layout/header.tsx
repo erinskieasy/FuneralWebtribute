@@ -37,6 +37,15 @@ export default function Header({ minimal = false }: HeaderProps) {
   // Use settings data or fall back to defaults
   const backgroundImage = settings?.backgroundImage || DEFAULT_BACKGROUND_IMAGE;
   const tributeImage = settings?.tributeImage || DEFAULT_TRIBUTE_IMAGE;
+  
+  // Log image paths for debugging
+  useEffect(() => {
+    if (settings) {
+      console.log('Background Image Path:', backgroundImage);
+      console.log('Background Image URL:', backgroundImage.startsWith('/uploads') ? `${window.location.origin}${backgroundImage}` : backgroundImage);
+      console.log('Tribute Image Path:', tributeImage);
+    }
+  }, [settings, backgroundImage, tributeImage]);
 
   // Add scroll event listener to track page scroll position
   useEffect(() => {
@@ -79,7 +88,7 @@ export default function Header({ minimal = false }: HeaderProps) {
         {!minimal && (
           <div className="absolute inset-0 z-0">
             <img 
-              src={backgroundImage} 
+              src={backgroundImage.startsWith('/uploads') ? `${window.location.origin}${backgroundImage}` : backgroundImage} 
               alt="Memorial background" 
               className="object-cover w-full h-full"
               onError={(e) => {
@@ -178,7 +187,7 @@ export default function Header({ minimal = false }: HeaderProps) {
             {/* Tribute image */}
             <div className="mb-8 w-48 h-48 sm:w-64 sm:h-64 rounded-full overflow-hidden border-4 border-white shadow-lg">
               <img 
-                src={tributeImage} 
+                src={tributeImage.startsWith('/uploads') ? `${window.location.origin}${tributeImage}` : tributeImage} 
                 alt="Chris Murphey" 
                 className="w-full h-full object-cover"
               />
