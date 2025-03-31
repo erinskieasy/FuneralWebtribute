@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { SiteSettings, FuneralProgram } from "@/lib/types";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Loader2, Save, Upload } from "lucide-react";
+import { Loader2, Save, Upload, Plus, Trash } from "lucide-react";
 
 export default function ContentManager() {
   const { toast } = useToast();
@@ -52,12 +52,8 @@ export default function ContentManager() {
   const [contactPhone, setContactPhone] = useState("");
   
   // Additional resources
-  const [resourceName1, setResourceName1] = useState("");
-  const [resourceLink1, setResourceLink1] = useState("");
-  const [resourceName2, setResourceName2] = useState("");
-  const [resourceLink2, setResourceLink2] = useState("");
-  const [resourceName3, setResourceName3] = useState("");
-  const [resourceLink3, setResourceLink3] = useState("");
+  // Replace individual resource states with an array of resources
+  const [resources, setResources] = useState<Array<{name: string, link: string}>>([]);
 
   // Refs for file inputs
   const backgroundFileInputRef = useRef<HTMLInputElement>(null);
@@ -83,13 +79,32 @@ export default function ContentManager() {
       setContactEmail(settings.contactEmail || "");
       setContactPhone(settings.contactPhone || "");
       
-      // Resources
-      setResourceName1(settings.resourceName1 || "");
-      setResourceLink1(settings.resourceLink1 || "");
-      setResourceName2(settings.resourceName2 || "");
-      setResourceLink2(settings.resourceLink2 || "");
-      setResourceName3(settings.resourceName3 || "");
-      setResourceLink3(settings.resourceLink3 || "");
+      // Resources - Convert the flat settings to an array of resource objects
+      const resourcesArray: Array<{name: string, link: string}> = [];
+      
+      // Add resources only if they have a name
+      if (settings.resourceName1) {
+        resourcesArray.push({
+          name: settings.resourceName1 || "",
+          link: settings.resourceLink1 || "#"
+        });
+      }
+      
+      if (settings.resourceName2) {
+        resourcesArray.push({
+          name: settings.resourceName2 || "",
+          link: settings.resourceLink2 || "#"
+        });
+      }
+      
+      if (settings.resourceName3) {
+        resourcesArray.push({
+          name: settings.resourceName3 || "",
+          link: settings.resourceLink3 || "#"
+        });
+      }
+      
+      setResources(resourcesArray);
     }
   }, [settings]);
 
@@ -256,35 +271,37 @@ export default function ContentManager() {
       updatedCount++;
     }
     
-    // Update resource links
-    if (resourceName1 !== settings?.resourceName1) {
-      updateSettingMutation.mutate({ key: "resourceName1", value: resourceName1 });
-      updatedCount++;
-    }
+    // Update resource links - first clear existing resources
+    updateSettingMutation.mutate({ key: "resourceName1", value: "" });
+    updateSettingMutation.mutate({ key: "resourceLink1", value: "" });
+    updateSettingMutation.mutate({ key: "resourceName2", value: "" });
+    updateSettingMutation.mutate({ key: "resourceLink2", value: "" });
+    updateSettingMutation.mutate({ key: "resourceName3", value: "" });
+    updateSettingMutation.mutate({ key: "resourceLink3", value: "" });
     
-    if (resourceLink1 !== settings?.resourceLink1) {
-      updateSettingMutation.mutate({ key: "resourceLink1", value: resourceLink1 });
-      updatedCount++;
-    }
+    // Then update with new values from resources array (limited to 3)
+    resources.forEach((resource, index) => {
+      if (index === 0) {
+        updateSettingMutation.mutate({ key: "resourceName1", value: resource.name });
+        updateSettingMutation.mutate({ key: "resourceLink1", value: resource.link });
+        updatedCount += 2;
+      } else if (index === 1) {
+        updateSettingMutation.mutate({ key: "resourceName2", value: resource.name });
+        updateSettingMutation.mutate({ key: "resourceLink2", value: resource.link });
+        updatedCount += 2;
+      } else if (index === 2) {
+        updateSettingMutation.mutate({ key: "resourceName3", value: resource.name });
+        updateSettingMutation.mutate({ key: "resourceLink3", value: resource.link });
+        updatedCount += 2;
+      }
+    });
     
-    if (resourceName2 !== settings?.resourceName2) {
-      updateSettingMutation.mutate({ key: "resourceName2", value: resourceName2 });
-      updatedCount++;
-    }
-    
-    if (resourceLink2 !== settings?.resourceLink2) {
-      updateSettingMutation.mutate({ key: "resourceLink2", value: resourceLink2 });
-      updatedCount++;
-    }
-    
-    if (resourceName3 !== settings?.resourceName3) {
-      updateSettingMutation.mutate({ key: "resourceName3", value: resourceName3 });
-      updatedCount++;
-    }
-    
-    if (resourceLink3 !== settings?.resourceLink3) {
-      updateSettingMutation.mutate({ key: "resourceLink3", value: resourceLink3 });
-      updatedCount++;
+    if (resources.length > 3) {
+      toast({
+        title: "Resource limit",
+        description: "Only the first 3 resources will be saved. To save more resources, please contact support.",
+        variant: "warning"
+      });
     }
     
     if (updatedCount > 0) {
@@ -638,68 +655,72 @@ export default function ContentManager() {
               <div>
                 <h3 className="text-lg font-medium mb-4">Additional Resources</h3>
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="resourceName1">Resource 1 Name</Label>
-                      <Input
-                        id="resourceName1"
-                        value={resourceName1}
-                        onChange={(e) => setResourceName1(e.target.value)}
-                        placeholder="Grief Support Services"
-                      />
+                  {resources.map((resource, index) => (
+                    <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 pb-4 border-b border-border">
+                      <div className="space-y-2">
+                        <Label htmlFor={`resourceName-${index}`}>Resource Name</Label>
+                        <Input
+                          id={`resourceName-${index}`}
+                          value={resource.name}
+                          onChange={(e) => {
+                            const newResources = [...resources];
+                            newResources[index].name = e.target.value;
+                            setResources(newResources);
+                          }}
+                          placeholder="Resource Name"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`resourceLink-${index}`}>Resource URL</Label>
+                        <div className="flex space-x-2">
+                          <Input
+                            id={`resourceLink-${index}`}
+                            value={resource.link}
+                            onChange={(e) => {
+                              const newResources = [...resources];
+                              newResources[index].link = e.target.value;
+                              setResources(newResources);
+                            }}
+                            placeholder="https://example.com"
+                            className="flex-1"
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            onClick={() => {
+                              const newResources = [...resources];
+                              newResources.splice(index, 1);
+                              setResources(newResources);
+                            }}
+                          >
+                            <Trash className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="resourceLink1">Resource 1 URL</Label>
-                      <Input
-                        id="resourceLink1"
-                        value={resourceLink1}
-                        onChange={(e) => setResourceLink1(e.target.value)}
-                        placeholder="https://example.com/support"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="resourceName2">Resource 2 Name</Label>
-                      <Input
-                        id="resourceName2"
-                        value={resourceName2}
-                        onChange={(e) => setResourceName2(e.target.value)}
-                        placeholder="Ocean Conservation Society"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="resourceLink2">Resource 2 URL</Label>
-                      <Input
-                        id="resourceLink2"
-                        value={resourceLink2}
-                        onChange={(e) => setResourceLink2(e.target.value)}
-                        placeholder="https://example.com/conservation"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="resourceName3">Resource 3 Name</Label>
-                      <Input
-                        id="resourceName3"
-                        value={resourceName3}
-                        onChange={(e) => setResourceName3(e.target.value)}
-                        placeholder="Memorial Fund"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="resourceLink3">Resource 3 URL</Label>
-                      <Input
-                        id="resourceLink3"
-                        value={resourceLink3}
-                        onChange={(e) => setResourceLink3(e.target.value)}
-                        placeholder="https://example.com/fund"
-                      />
-                    </div>
-                  </div>
+                  ))}
+                  
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      // Limit to maximum 10 resources
+                      if (resources.length < 10) {
+                        setResources([...resources, { name: '', link: '' }]);
+                      } else {
+                        toast({
+                          title: "Maximum resources reached",
+                          description: "You can only have up to 10 resources.",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Resource
+                  </Button>
                 </div>
               </div>
 
