@@ -33,20 +33,40 @@ export default function Header({ minimal = false }: HeaderProps) {
     retry: false,
   });
 
+  // Track if settings have been loaded to properly handle initial rendering
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
+  
+  // Track direct image path from API
+  const backgroundImagePath = settings?.backgroundImage || '';
+  const tributeImagePath = settings?.tributeImage || '';
+  
   // Use window.location.origin to construct full URLs for images
-  const backgroundImage = settings?.backgroundImage 
-    ? `${window.location.origin}${settings.backgroundImage}`
-    : '';
-  const tributeImage = settings?.tributeImage
-    ? `${window.location.origin}${settings.tributeImage}`
-    : '';
+  const backgroundImage = backgroundImagePath.startsWith('/uploads') 
+    ? `${window.location.origin}${backgroundImagePath}`
+    : backgroundImagePath;
+    
+  const tributeImage = tributeImagePath.startsWith('/uploads')
+    ? `${window.location.origin}${tributeImagePath}`
+    : tributeImagePath;
+    
   const siteTitle = settings?.siteTitle || '';
   const lifeDates = settings?.lifeDates || '';
   const tributeHeadline = settings?.tributeHeadline || '';
 
-  console.log('Background Image Path:', settings?.backgroundImage);
-  console.log('Background Image URL:', backgroundImage);
-  console.log('Tribute Image Path:', settings?.tributeImage);
+  // Set settingsLoaded flag when settings are fetched
+  useEffect(() => {
+    if (settings) {
+      console.log('Settings loaded:', settings);
+      setSettingsLoaded(true);
+      
+      // Debug logs for image paths
+      console.log('Background Image Path:', settings.backgroundImage);
+      if (backgroundImagePath) {
+        console.log('Background Image URL:', backgroundImage);
+      }
+      console.log('Tribute Image Path:', settings.tributeImage);
+    }
+  }, [settings, backgroundImage, backgroundImagePath]);
 
   // Add scroll event listener to track page scroll position
   useEffect(() => {
@@ -85,19 +105,23 @@ export default function Header({ minimal = false }: HeaderProps) {
     <>
       {/* Main header container with conditional full-screen height */}
       <header className={`${minimal ? "relative bg-primary" : "relative min-h-[750px] h-[92vh] max-h-[1000px] overflow-hidden"}`}>
-        {/* Background image section - only shown in full header mode */}
+        {/* Background image section - only shown in full header mode when settings are loaded */}
         {!minimal && (
           <div className="absolute inset-0 z-0">
-            <img 
-              src={backgroundImage} 
-              alt="Memorial background" 
-              className="object-cover w-full h-full" 
-              onError={(e) => {
-                console.error('Failed to load image:', backgroundImage);
-                e.currentTarget.style.display = 'none';
-              }}
-            />
-            {/* Overlay removed as requested */}
+            {settingsLoaded && backgroundImage ? (
+              <img 
+                src={backgroundImage} 
+                alt="Memorial background" 
+                className="object-cover w-full h-full" 
+                onLoad={() => console.log('Image loaded successfully')}
+                onError={(e) => {
+                  console.error('Failed to load image:', backgroundImage);
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            ) : (
+              <div className="w-full h-full bg-primary"></div>
+            )}
           </div>
         )}
 
@@ -186,11 +210,20 @@ export default function Header({ minimal = false }: HeaderProps) {
           <div className="relative z-10 container mx-auto h-full flex flex-col justify-center items-center px-6 text-center">
             {/* Tribute image */}
             <div className="mb-8 w-48 h-48 sm:w-64 sm:h-64 rounded-full overflow-hidden border-4 border-white shadow-lg">
-              <img 
-                src={tributeImage} 
-                alt="Memorial Portrait" 
-                className="w-full h-full object-cover"
-              />
+              {settingsLoaded && tributeImage ? (
+                <img 
+                  src={tributeImage} 
+                  alt="Memorial Portrait" 
+                  className="w-full h-full object-cover"
+                  onLoad={() => console.log('Tribute image loaded successfully')}
+                  onError={(e) => {
+                    console.error('Failed to load tribute image:', tributeImage);
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              ) : (
+                <div className="w-full h-full bg-primary"></div>
+              )}
             </div>
             {/* Tribute information */}
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-heading font-bold text-white mb-4">
