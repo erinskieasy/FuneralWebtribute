@@ -189,10 +189,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     <FormLabel>Full Name</FormLabel>
                     <FormControl>
                       <Input 
-                        type="text"
-                        placeholder="Enter your full name" 
-                        {...field} 
-                      />
+                        type="text" placeholder="Enter your full name" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
