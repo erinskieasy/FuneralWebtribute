@@ -37,6 +37,9 @@ export default function Header({ minimal = false }: HeaderProps) {
   // Use settings data or fall back to defaults
   const backgroundImage = settings?.backgroundImage || DEFAULT_BACKGROUND_IMAGE;
   const tributeImage = settings?.tributeImage || DEFAULT_TRIBUTE_IMAGE;
+  const siteTitle = settings?.siteTitle || SITE_TITLE;
+  const lifeDates = settings?.lifeDates || LIFE_DATES;
+  const tributeHeadline = settings?.tributeHeadline || TRIBUTE_HEADLINE;
   
   // Log image paths for debugging
   useEffect(() => {
@@ -105,7 +108,7 @@ export default function Header({ minimal = false }: HeaderProps) {
           <div className="container mx-auto flex justify-between items-center">
             {/* Site title/logo */}
             <Link href="/" className="text-white text-xl font-heading font-bold">
-              {SITE_TITLE}
+              {siteTitle}
             </Link>
             
             {/* Desktop navigation links */}
@@ -192,9 +195,9 @@ export default function Header({ minimal = false }: HeaderProps) {
               />
             </div>
             {/* Tribute information */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-heading font-bold text-white mb-4">Chris Murphey</h1>
-            <p className="text-xl text-white mb-8">{LIFE_DATES}</p>
-            <p className="text-lg text-white max-w-2xl mb-10">{TRIBUTE_HEADLINE}</p>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-heading font-bold text-white mb-4">{siteTitle.replace(" Memorial", "")}</h1>
+            <p className="text-xl text-white mb-8">{lifeDates}</p>
+            <p className="text-lg text-white max-w-2xl mb-10">{tributeHeadline}</p>
             {/* Call-to-action buttons */}
             <div className="flex flex-wrap justify-center gap-4">
               <Link href="#tributes">

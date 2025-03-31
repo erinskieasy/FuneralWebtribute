@@ -34,6 +34,9 @@ export default function ContentManager() {
   // State for settings form
   const [backgroundImage, setBackgroundImage] = useState("");
   const [tributeImage, setTributeImage] = useState("");
+  const [siteTitle, setSiteTitle] = useState("");
+  const [lifeDates, setLifeDates] = useState("");
+  const [tributeHeadline, setTributeHeadline] = useState("");
 
   // Debug the image loading without affecting state
   useEffect(() => {
@@ -75,6 +78,9 @@ export default function ContentManager() {
       setBackgroundImage(settings.backgroundImage || "");
       setTributeImage(settings.tributeImage || "");
       setFooterMessage(settings.footerMessage || "");
+      setSiteTitle(settings.siteTitle || "Chris Murphey Memorial");
+      setLifeDates(settings.lifeDates || "1975 - 2023");
+      setTributeHeadline(settings.tributeHeadline || "A beloved father, husband, and friend whose kindness and spirit touched the lives of everyone around him.");
       
       // Contact information
       setContactEmail(settings.contactEmail || "");
@@ -221,6 +227,21 @@ export default function ContentManager() {
     // Update tribute image
     if (tributeImage !== settings?.tributeImage) {
       updateSettingMutation.mutate({ key: "tributeImage", value: tributeImage });
+    }
+
+    // Update site title
+    if (siteTitle !== settings?.siteTitle) {
+      updateSettingMutation.mutate({ key: "siteTitle", value: siteTitle });
+    }
+    
+    // Update life dates
+    if (lifeDates !== settings?.lifeDates) {
+      updateSettingMutation.mutate({ key: "lifeDates", value: lifeDates });
+    }
+    
+    // Update tribute headline
+    if (tributeHeadline !== settings?.tributeHeadline) {
+      updateSettingMutation.mutate({ key: "tributeHeadline", value: tributeHeadline });
     }
 
     // Update footer message
@@ -496,6 +517,52 @@ export default function ContentManager() {
                 <p className="text-xs text-muted-foreground">
                   Enter an image URL or upload an image file (up to 50MB)
                 </p>
+              </div>
+
+              <div className="pt-4 border-t border-border">
+                <h3 className="text-lg font-medium mb-4">Memorial Information</h3>
+                
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="siteTitle">Name</Label>
+                    <Input
+                      id="siteTitle"
+                      value={siteTitle}
+                      onChange={(e) => setSiteTitle(e.target.value)}
+                      placeholder="Chris Murphey Memorial"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      The name that appears in the header of the website
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="lifeDates">Life Dates</Label>
+                    <Input
+                      id="lifeDates"
+                      value={lifeDates}
+                      onChange={(e) => setLifeDates(e.target.value)}
+                      placeholder="1975 - 2023"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Birth and death years displayed in the header
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="tributeHeadline">Tribute Headline</Label>
+                    <Textarea
+                      id="tributeHeadline"
+                      value={tributeHeadline}
+                      onChange={(e) => setTributeHeadline(e.target.value)}
+                      placeholder="A beloved father, husband, and friend..."
+                      rows={3}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Brief description that appears below the name in the header
+                    </p>
+                  </div>
+                </div>
               </div>
 
               {/* Footer message moved to its own tab */}

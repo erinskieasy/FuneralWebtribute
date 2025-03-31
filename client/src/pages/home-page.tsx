@@ -8,10 +8,19 @@ import { useQuery } from "@tanstack/react-query";
 import { SiteSettings } from "@/lib/types";
 
 export default function HomePage() {
-  // Set page title
+  // Get site settings
+  const { data: settings } = useQuery<SiteSettings>({
+    queryKey: ["/api/settings"],
+  });
+  
+  // Set page title based on site settings
   useEffect(() => {
-    document.title = "Remembering Chris Murphey - Digital Memorial";
-  }, []);
+    if (settings?.siteTitle) {
+      document.title = `${settings.siteTitle} - Digital Memorial`;
+    } else {
+      document.title = "Remembering Chris Murphey - Digital Memorial";
+    }
+  }, [settings?.siteTitle]);
   
   return (
     <div className="min-h-screen flex flex-col">

@@ -40,6 +40,9 @@ export interface FuneralProgram {
 export interface SiteSettings {
   backgroundImage: string;
   tributeImage: string;
+  siteTitle: string;
+  lifeDates: string;
+  tributeHeadline: string;
   footerMessage: string;
   contactEmail: string;
   contactPhone: string;
