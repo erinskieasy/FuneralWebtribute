@@ -107,7 +107,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   <FormItem>
                     <FormLabel>Username</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter your username" {...field} />
+                      <Input type="text" placeholder="Enter your username" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -173,7 +173,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   <FormItem>
                     <FormLabel>Username</FormLabel>
                     <FormControl>
-                      <Input placeholder="Choose a username" {...field} />
+                      <Input type="text" placeholder="Choose a username" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -190,6 +190,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     <FormControl>
                       {/* TEMPORARY FIX: Direct input value manipulation to bypass Dialog event issues */}
                       <Input 
+                        type="text"
                         placeholder="Enter your full name" 
                         className="relative"
                         onKeyDown={(e) => {
