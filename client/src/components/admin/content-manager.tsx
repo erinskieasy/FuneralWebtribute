@@ -187,6 +187,29 @@ export default function ContentManager() {
       updateSettingMutation.mutate({ key: "footerMessage", value: footerMessage });
     }
   };
+  
+  // Handle specifically the footer message save button from footer tab
+  const handleSaveFooterMessage = () => {
+    if (footerMessage !== settings?.footerMessage) {
+      updateSettingMutation.mutate({ 
+        key: "footerMessage", 
+        value: footerMessage 
+      }, {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ["/api/settings"] });
+          toast({
+            title: "Footer message updated",
+            description: "Your footer message has been saved successfully.",
+          });
+        }
+      });
+    } else {
+      toast({
+        title: "No changes detected",
+        description: "The footer message hasn't changed.",
+      });
+    }
+  };
 
   // File upload handlers
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
@@ -238,6 +261,7 @@ export default function ContentManager() {
         <TabsList>
           <TabsTrigger value="general">General Settings</TabsTrigger>
           <TabsTrigger value="funeral">Funeral Program</TabsTrigger>
+          <TabsTrigger value="footer">Footer Settings</TabsTrigger>
         </TabsList>
 
         <TabsContent value="general" className="mt-4">
@@ -343,16 +367,7 @@ export default function ContentManager() {
                 </p>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="footerMessage">Footer Message</Label>
-                <Textarea
-                  id="footerMessage"
-                  value={footerMessage}
-                  onChange={(e) => setFooterMessage(e.target.value)}
-                  placeholder="Enter a message for the footer"
-                  rows={3}
-                />
-              </div>
+              {/* Footer message moved to its own tab */}
 
               <Button 
                 onClick={handleSaveSettings}
@@ -460,6 +475,51 @@ export default function ContentManager() {
                   <>
                     <Save className="mr-2 h-4 w-4" />
                     Save Changes
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="footer" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Footer Settings</CardTitle>
+              <CardDescription>
+                Customize the message displayed in the website footer
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="footerMessageArea">Footer Message</Label>
+                <Textarea
+                  id="footerMessageArea"
+                  value={footerMessage}
+                  onChange={(e) => setFooterMessage(e.target.value)}
+                  placeholder="Enter a message for the footer"
+                  rows={5}
+                  className="min-h-[120px]"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Enter an inspirational quote, remembrance message, or any text you'd like to appear in the footer
+                </p>
+              </div>
+
+              <Button 
+                onClick={handleSaveFooterMessage}
+                disabled={isUpdatingSettings}
+                className="mt-4"
+              >
+                {isUpdatingSettings ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Footer Message
                   </>
                 )}
               </Button>
